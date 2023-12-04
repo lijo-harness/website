@@ -5,7 +5,7 @@ reviewers:
 - bsalamat
 title: Taints and Tolerations
 content_type: concept
-weight: 40
+weight: 50
 ---
 
 
@@ -15,13 +15,14 @@ is a property of {{< glossary_tooltip text="Pods" term_id="pod" >}} that *attrac
 a set of {{< glossary_tooltip text="nodes" term_id="node" >}} (either as a preference or a
 hard requirement). _Taints_ are the opposite -- they allow a node to repel a set of pods.
 
-_Tolerations_ are applied to pods. Tolerations allow the scheduler to schedule pods with matching taints. Tolerations allow scheduling but don't guarantee scheduling: the scheduler also [evaluates other parameters](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/) as part of its function.
+_Tolerations_ are applied to pods. Tolerations allow the scheduler to schedule pods with matching
+taints. Tolerations allow scheduling but don't guarantee scheduling: the scheduler also
+[evaluates other parameters](/docs/concepts/scheduling-eviction/pod-priority-preemption/)
+as part of its function.
 
 Taints and tolerations work together to ensure that pods are not scheduled
 onto inappropriate nodes. One or more taints are applied to a node; this
 marks that the node should not accept any pods that do not tolerate the taints.
-
-
 
 <!-- body -->
 
@@ -63,7 +64,7 @@ tolerations:
 
 Here's an example of a pod that uses tolerations:
 
-{{< codenew file="pods/pod-with-toleration.yaml" >}}
+{{% code_sample file="pods/pod-with-toleration.yaml" %}}
 
 The default value for `operator` is `Equal`.
 
@@ -84,9 +85,27 @@ An empty `effect` matches all effects with key `key1`.
 {{< /note >}}
 
 The above example used `effect` of `NoSchedule`. Alternatively, you can use `effect` of `PreferNoSchedule`.
-This is a "preference" or "soft" version of `NoSchedule` -- the system will *try* to avoid placing a
-pod that does not tolerate the taint on the node, but it is not required. The third kind of `effect` is
-`NoExecute`, described later.
+
+
+The allowed values for the `effect` field are:
+
+`NoExecute`
+: This affects pods that are already running on the node as follows:
+  * Pods that do not tolerate the taint are evicted immediately
+  * Pods that tolerate the taint without specifying `tolerationSeconds` in
+    their toleration specification remain bound forever
+  * Pods that tolerate the taint with a specified `tolerationSeconds` remain
+    bound for the specified amount of time. After that time elapses, the node
+    lifecycle controller evicts the Pods from the node.
+   
+`NoSchedule`
+: No new Pods will be scheduled on the tainted node unless they have a matching
+  toleration. Pods currently running on the node are **not** evicted.
+
+`PreferNoSchedule`
+: `PreferNoSchedule` is a "preference" or "soft" version of `NoSchedule`.
+  The control plane will *try* to avoid placing a Pod that does not tolerate
+  the taint on the node, but it is not guaranteed. 
 
 You can put multiple taints on the same node and multiple tolerations on the same pod.
 The way Kubernetes processes multiple taints and tolerations is like a filter: start
@@ -193,14 +212,7 @@ when there are node problems, which is described in the next section.
 
 {{< feature-state for_k8s_version="v1.18" state="stable" >}}
 
-The `NoExecute` taint effect, mentioned above, affects pods that are already
-running on the node as follows
 
- * pods that do not tolerate the taint are evicted immediately
- * pods that tolerate the taint without specifying `tolerationSeconds` in
-   their toleration specification remain bound forever
- * pods that tolerate the taint with a specified `tolerationSeconds` remain
-   bound for the specified amount of time
 
 The node controller automatically taints a Node when certain conditions
 are true. The following taints are built in:
@@ -219,12 +231,19 @@ are true. The following taints are built in:
     as unusable. After a controller from the cloud-controller-manager initializes
     this node, the kubelet removes this taint.
 
-In case a node is to be evicted, the node controller or the kubelet adds relevant taints
-with `NoExecute` effect. If the fault condition returns to normal the kubelet or node
+In case a node is to be drained, the node controller or the kubelet adds relevant taints
+with `NoExecute` effect. This effect is added by default for the
+`node.kubernetes.io/not-ready` and `node.kubernetes.io/unreachable` taints.
+If the fault condition returns to normal, the kubelet or node
 controller can remove the relevant taint(s).
 
+In some cases when the node is unreachable, the API server is unable to communicate
+with the kubelet on the node. The decision to delete the pods cannot be communicated to
+the kubelet until communication with the API server is re-established. In the meantime,
+the pods that are scheduled for deletion may continue to run on the partitioned node.
+
 {{< note >}}
-The control plane limits the rate of adding node new taints to nodes. This rate limiting
+The control plane limits the rate of adding new taints to nodes. This rate limiting
 manages the number of evictions that are triggered when many nodes become unreachable at
 once (for example: if there is a network disruption).
 {{< /note >}}
@@ -266,7 +285,8 @@ This ensures that DaemonSet pods are never evicted due to these problems.
 ## Taint Nodes by Condition
 
 The control plane, using the node {{<glossary_tooltip text="controller" term_id="controller">}},
-automatically creates taints with a `NoSchedule` effect for [node conditions](/docs/concepts/scheduling-eviction/node-pressure-eviction/#node-conditions).
+automatically creates taints with a `NoSchedule` effect for
+[node conditions](/docs/concepts/scheduling-eviction/node-pressure-eviction/#node-conditions).
 
 The scheduler checks taints, not node conditions, when it makes scheduling
 decisions. This ensures that node conditions don't directly affect scheduling.
@@ -297,7 +317,7 @@ arbitrary tolerations to DaemonSets.
 
 ## {{% heading "whatsnext" %}}
 
-* Read about [Node-pressure Eviction](/docs/concepts/scheduling-eviction/node-pressure-eviction/) and how you can configure it
+* Read about [Node-pressure Eviction](/docs/concepts/scheduling-eviction/node-pressure-eviction/)
+  and how you can configure it
 * Read about [Pod Priority](/docs/concepts/scheduling-eviction/pod-priority-preemption/)
-
 

@@ -87,20 +87,21 @@ networking, or other host-specific parameters. The following list provides a few
 - To specify the container runtime you must set its endpoint with the
 `--container-runtime-endpoint=<path>` flag.
 
-You can specify these flags by configuring an individual kubelet's configuration in your service manager,
-such as systemd.
+The recommended way of applying such instance-specific configuration is by using
+[`KubeletConfiguration` patches](/docs/setup/production-environment/tools/kubeadm/control-plane-flags#patches).
 
 ## Configure kubelets using kubeadm
 
-It is possible to configure the kubelet that kubeadm will start if a custom `KubeletConfiguration`
+It is possible to configure the kubelet that kubeadm will start if a custom
+[`KubeletConfiguration`](/docs/reference/config-api/kubelet-config.v1beta1/)
 API object is passed with a configuration file like so `kubeadm ... --config some-config-file.yaml`.
 
 By calling `kubeadm config print init-defaults --component-configs KubeletConfiguration` you can
 see all the default values for this structure.
 
-Also have a look at the
-[reference for the KubeletConfiguration](/docs/reference/config-api/kubelet-config.v1beta1/)
-for more information on the individual fields.
+It is also possible to apply instance-specific patches over the base `KubeletConfiguration`.
+Have a look at [Customizing the kubelet](/docs/setup/production-environment/tools/kubeadm/control-plane-flags#customizing-the-kubelet)
+for more details.
 
 ### Workflow when using `kubeadm init`
 
@@ -161,16 +162,14 @@ Kubeadm deletes the `/etc/kubernetes/bootstrap-kubelet.conf` file after completi
 Note that the kubeadm CLI command never touches this drop-in file.
 
 This configuration file installed by the `kubeadm`
-[DEB](https://github.com/kubernetes/release/blob/master/cmd/kubepkg/templates/latest/deb/kubeadm/10-kubeadm.conf) or
-[RPM package](https://github.com/kubernetes/release/blob/master/cmd/kubepkg/templates/latest/rpm/kubeadm/10-kubeadm.conf) is written to
+[package](https://github.com/kubernetes/release/blob/cd53840/cmd/krel/templates/latest/kubeadm/10-kubeadm.conf) is written to
 `/etc/systemd/system/kubelet.service.d/10-kubeadm.conf` and is used by systemd.
 It augments the basic
-[`kubelet.service` for RPM](https://github.com/kubernetes/release/blob/master/cmd/kubepkg/templates/latest/rpm/kubelet/kubelet.service) or
-[`kubelet.service` for DEB](https://github.com/kubernetes/release/blob/master/cmd/kubepkg/templates/latest/deb/kubelet/lib/systemd/system/kubelet.service):
+[`kubelet.service`](https://github.com/kubernetes/release/blob/cd53840/cmd/krel/templates/latest/kubelet/kubelet.service):
 
 {{< note >}}
 The contents below are just an example. If you don't want to use a package manager
-follow the guide outlined in the [Without a package manager](/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#k8s-install-2))
+follow the guide outlined in the ([Without a package manager](/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#k8s-install-2))
 section.
 {{< /note >}}
 
@@ -179,7 +178,7 @@ section.
 Environment="KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
 Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"
 # This is a file that "kubeadm init" and "kubeadm join" generate at runtime, populating
-the KUBELET_KUBEADM_ARGS variable dynamically
+# the KUBELET_KUBEADM_ARGS variable dynamically
 EnvironmentFile=-/var/lib/kubelet/kubeadm-flags.env
 # This is a file that the user can use for overrides of the kubelet args as a last resort. Preferably,
 # the user should use the .NodeRegistration.KubeletExtraArgs object in the configuration files instead.

@@ -57,14 +57,14 @@ Prow 根据文件路径自动添加语言标签。感谢 SIG Docs 贡献者 [Jun
 ```
 
 
-<!-- These repo labels let reviewers filter for PRs and issues by language. For example, you can now filter the k/website dashboard for [PRs with Chinese content](https://github.com/kubernetes/website/pulls?utf8=%E2%9C%93&q=is%3Aopen+is%3Apr+label%3Alanguage%2Fzh).   -->
+<!-- These repo labels let reviewers filter for PRs and issues by language. For example, you can now filter the kubernetes/website dashboard for [PRs with Chinese content](https://github.com/kubernetes/website/pulls?utf8=%E2%9C%93&q=is%3Aopen+is%3Apr+label%3Alanguage%2Fzh).   -->
 这些存储库标签允许审阅者按语言过滤 PR 和 issue。例如，您现在可以过滤 kubernetes/website 面板中[具有中文内容的 PR](https://github.com/kubernetes/website/pulls?utf8=%E2%9C%93&q=is%3Aopen+is%3Apr+label%3Alanguage%2Fzh)。
 
 <!-- ### Team review  -->
 ### 团队审核
 
-<!-- L10n teams can now review and approve their own PRs. For example, review and approval permissions for English are [assigned in an OWNERS file](https://github.com/kubernetes/website/blob/master/content/en/OWNERS) in the top subfolder for English content.  -->
-L10n 团队现在可以审查和批准他们自己的 PR。例如，英语的审核和批准权限在位于用于显示英语内容的顶级子文件夹中的 [OWNERS 文件中指定](https://github.com/kubernetes/website/blob/master/content/en/OWNERS)。
+<!-- L10n teams can now review and approve their own PRs. For example, review and approval permissions for English are [assigned in an OWNERS file](https://github.com/kubernetes/website/blob/main/content/en/OWNERS) in the top subfolder for English content.  -->
+L10n 团队现在可以审查和批准他们自己的 PR。例如，英语的审核和批准权限在位于用于显示英语内容的顶级子文件夹中的 [OWNERS 文件中指定](https://github.com/kubernetes/website/blob/main/content/en/OWNERS)。
 
 <!-- Adding `OWNERS` files to subdirectories lets localization teams review and approve changes without requiring a rubber stamp approval from reviewers who may lack fluency. -->
 将 `OWNERS` 文件添加到子目录可以让本地化团队审查和批准更改，而无需由可能并不擅长该门语言的审阅者进行批准。

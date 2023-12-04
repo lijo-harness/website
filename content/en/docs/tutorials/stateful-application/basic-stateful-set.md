@@ -27,14 +27,25 @@ following Kubernetes concepts:
 * [Headless Services](/docs/concepts/services-networking/service/#headless-services)
 * [PersistentVolumes](/docs/concepts/storage/persistent-volumes/)
 * [PersistentVolume Provisioning](https://github.com/kubernetes/examples/tree/master/staging/persistent-volume-provisioning/)
-* [StatefulSets](/docs/concepts/workloads/controllers/statefulset/)
 * The [kubectl](/docs/reference/kubectl/kubectl/) command line tool
+
+{{% include "task-tutorial-prereqs.md" %}}
+You should configure `kubectl` to use a context that uses the `default`
+namespace.
+If you are using an existing cluster, make sure that it's OK to use that
+cluster's default namespace to practice. Ideally, practice in a cluster
+that doesn't run any real workloads.
+
+It's also useful to read the concept page about [StatefulSets](/docs/concepts/workloads/controllers/statefulset/).
 
 {{< note >}}
 This tutorial assumes that your cluster is configured to dynamically provision
-PersistentVolumes. If your cluster is not configured to do so, you
+PersistentVolumes. You'll also need to have a [default StorageClass](/docs/concepts/storage/storage-classes/#default-storageclass).
+If your cluster is not configured to provision storage dynamically, you
 will have to manually provision two 1 GiB volumes prior to starting this
-tutorial.
+tutorial and
+set up your cluster so that those PersistentVolumes map to the
+PersistentVolumeClaim templates that the StatefulSet defines.
 {{< /note >}}
 
 ## {{% heading "objectives" %}}
@@ -63,7 +74,7 @@ example presented in the
 It creates a [headless Service](/docs/concepts/services-networking/service/#headless-services),
 `nginx`, to publish the IP addresses of Pods in the StatefulSet, `web`.
 
-{{< codenew file="application/web/web.yaml" >}}
+{{% code_sample file="application/web/web.yaml" %}}
 
 Download the example above, and save it to a file named `web.yaml`
 
@@ -131,11 +142,16 @@ Notice that the `web-1` Pod is not launched until the `web-0` Pod is
 _Running_ (see [Pod Phase](/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase))
 and _Ready_ (see `type` in [Pod Conditions](/docs/concepts/workloads/pods/pod-lifecycle/#pod-conditions)).
 
+{{< note >}}
+To configure the integer ordinal assigned to each Pod in a StatefulSet, see
+[Start ordinal](/docs/concepts/workloads/controllers/statefulset/#start-ordinal).
+{{< /note >}}
+
 ## Pods in a StatefulSet
 
 Pods in a StatefulSet have a unique ordinal index and a stable network identity.
 
-### Examining the Pod's Ordinal Index
+### Examining the Pod's ordinal index
 
 Get the StatefulSet's Pods:
 
@@ -155,7 +171,7 @@ StatefulSet {{< glossary_tooltip term_id="controller" text="controller">}}.
 The Pods' names take the form `<statefulset name>-<ordinal index>`.
 Since the `web` StatefulSet has two replicas, it creates two Pods, `web-0` and `web-1`.
 
-### Using Stable Network Identities
+### Using stable network identities
 
 Each Pod has a stable hostname based on its ordinal index. Use
 [`kubectl exec`](/docs/reference/generated/kubectl/kubectl-commands/#exec) to execute the
@@ -249,8 +265,8 @@ web-0
 web-1
 ```
 then, run:
-```
-kubectl run -i --tty --image busybox:1.28 dns-test --restart=Never --rm /bin/sh
+```shell
+kubectl run -i --tty --image busybox:1.28 dns-test --restart=Never --rm
 ```
 which starts a new shell.  
 In that new shell, run:
@@ -281,6 +297,7 @@ but the IP addresses associated with the Pods may have changed. In the cluster
 used for this tutorial, they have. This is why it is important not to configure
 other applications to connect to Pods in a StatefulSet by IP address.
 
+#### Discovery for specific Pods in a StatefulSet
 
 If you need to find and connect to the active members of a StatefulSet, you
 should query the CNAME of the headless Service
@@ -295,7 +312,7 @@ liveness and readiness, you can use the SRV records of the Pods (
 application will be able to discover the Pods' addresses when they transition
 to Running and Ready.
 
-### Writing to Stable Storage
+### Writing to stable storage
 
 Get the PersistentVolumeClaims for `web-0` and `web-1`:
 
@@ -401,7 +418,7 @@ This is accomplished by updating the `replicas` field. You can use either
 [`kubectl scale`](/docs/reference/generated/kubectl/kubectl-commands/#scale) or
 [`kubectl patch`](/docs/reference/generated/kubectl/kubectl-commands/#patch) to scale a StatefulSet.
 
-### Scaling Up
+### Scaling up
 
 In one terminal window, watch the Pods in the StatefulSet:
 
@@ -488,7 +505,7 @@ web-3     1/1       Terminating   0         42s
 web-3     1/1       Terminating   0         42s
 ```
 
-### Ordered Pod Termination
+### Ordered Pod termination
 
 The controller deleted one Pod at a time, in reverse order with respect to its
 ordinal index, and it waited for each to be completely shutdown before
@@ -523,7 +540,7 @@ StatefulSet. There are two valid update strategies, `RollingUpdate` and
 
 `RollingUpdate` update strategy is the default for StatefulSets.
 
-### Rolling Update
+### RollingUpdate {#rolling-update}
 
 The `RollingUpdate` update strategy will update all Pods in a StatefulSet, in
 reverse ordinal order, while respecting the StatefulSet guarantees.
@@ -606,9 +623,9 @@ Get the Pods to view their container images:
 for p in 0 1 2; do kubectl get pod "web-$p" --template '{{range $i, $c := .spec.containers}}{{$c.image}}{{end}}'; echo; done
 ```
 ```
-k8s.gcr.io/nginx-slim:0.8
-k8s.gcr.io/nginx-slim:0.8
-k8s.gcr.io/nginx-slim:0.8
+registry.k8s.io/nginx-slim:0.8
+registry.k8s.io/nginx-slim:0.8
+registry.k8s.io/nginx-slim:0.8
 
 ```
 
@@ -619,7 +636,7 @@ You can also use `kubectl rollout status sts/<name>` to view
 the status of a rolling update to a StatefulSet
 {{< /note >}}
 
-#### Staging an Update
+#### Staging an update
 
 You can stage an update to a StatefulSet by using the `partition` parameter of
 the `RollingUpdate` update strategy. A staged update will keep all of the Pods
@@ -638,7 +655,7 @@ statefulset.apps/web patched
 Patch the StatefulSet again to change the container's image:
 
 ```shell
-kubectl patch statefulset web --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value":"k8s.gcr.io/nginx-slim:0.7"}]'
+kubectl patch statefulset web --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value":"registry.k8s.io/nginx-slim:0.7"}]'
 ```
 ```
 statefulset.apps/web patched
@@ -672,7 +689,7 @@ Get the Pod's container image:
 kubectl get pod web-2 --template '{{range $i, $c := .spec.containers}}{{$c.image}}{{end}}'
 ```
 ```
-k8s.gcr.io/nginx-slim:0.8
+registry.k8s.io/nginx-slim:0.8
 ```
 
 Notice that, even though the update strategy is `RollingUpdate` the StatefulSet
@@ -680,7 +697,7 @@ restored the Pod with its original container. This is because the
 ordinal of the Pod is less than the `partition` specified by the
 `updateStrategy`.
 
-#### Rolling Out a Canary
+#### Rolling out a canary
 
 You can roll out a canary to test a modification by decrementing the `partition`
 you specified [above](#staging-an-update).
@@ -713,7 +730,7 @@ Get the Pod's container:
 kubectl get pod web-2 --template '{{range $i, $c := .spec.containers}}{{$c.image}}{{end}}'
 ```
 ```
-k8s.gcr.io/nginx-slim:0.7
+registry.k8s.io/nginx-slim:0.7
 
 ```
 
@@ -756,7 +773,7 @@ Get the `web-1` Pod's container image:
 kubectl get pod web-1 --template '{{range $i, $c := .spec.containers}}{{$c.image}}{{end}}'
 ```
 ```
-k8s.gcr.io/nginx-slim:0.8
+registry.k8s.io/nginx-slim:0.8
 ```
 
 `web-1` was restored to its original configuration because the Pod's ordinal
@@ -766,7 +783,7 @@ StatefulSet's `.spec.template` is updated. If a Pod that has an ordinal less
 than the partition is deleted or otherwise terminated, it will be restored to
 its original configuration.
 
-#### Phased Roll Outs
+#### Phased roll outs
 
 You can perform a phased roll out (e.g. a linear, geometric, or exponential
 roll out) using a partitioned rolling update in a similar manner to how you
@@ -813,15 +830,15 @@ Get the container image details for the Pods in the StatefulSet:
 for p in 0 1 2; do kubectl get pod "web-$p" --template '{{range $i, $c := .spec.containers}}{{$c.image}}{{end}}'; echo; done
 ```
 ```
-k8s.gcr.io/nginx-slim:0.7
-k8s.gcr.io/nginx-slim:0.7
-k8s.gcr.io/nginx-slim:0.7
+registry.k8s.io/nginx-slim:0.7
+registry.k8s.io/nginx-slim:0.7
+registry.k8s.io/nginx-slim:0.7
 ```
 
 By moving the `partition` to `0`, you allowed the StatefulSet to
 continue the update process.
 
-### On Delete
+### OnDelete {#on-delete}
 
 The `OnDelete` update strategy implements the legacy (1.6 and prior) behavior,
 When you select this update strategy, the StatefulSet controller will not
@@ -836,7 +853,7 @@ StatefulSet supports both Non-Cascading and Cascading deletion. In a
 Non-Cascading Delete, the StatefulSet's Pods are not deleted when the StatefulSet is deleted. In a Cascading Delete, both the StatefulSet and its Pods are
 deleted.
 
-### Non-Cascading Delete
+### Non-cascading delete
 
 In one terminal window, watch the Pods in the StatefulSet.
 
@@ -957,7 +974,7 @@ because the StatefulSet never deletes the PersistentVolumes associated with a
 Pod. When you recreated the StatefulSet and it relaunched `web-0`, its original
 PersistentVolume was remounted.
 
-### Cascading Delete
+### Cascading delete
 
 In one terminal window, watch the Pods in the StatefulSet.
 
@@ -1065,27 +1082,27 @@ kubectl delete statefulset web
 statefulset "web" deleted
 ```
 
-## Pod Management Policy
+## Pod management policy
 
 For some distributed systems, the StatefulSet ordering guarantees are
 unnecessary and/or undesirable. These systems require only uniqueness and
 identity. To address this, in Kubernetes 1.7, we introduced
 `.spec.podManagementPolicy` to the StatefulSet API Object.
 
-### OrderedReady Pod Management
+### OrderedReady Pod management
 
 `OrderedReady` pod management is the default for StatefulSets. It tells the
 StatefulSet controller to respect the ordering guarantees demonstrated
 above.
 
-### Parallel Pod Management
+### Parallel Pod management
 
 `Parallel` pod management tells the StatefulSet controller to launch or
 terminate all Pods in parallel, and not to wait for Pods to become Running
 and Ready or completely terminated prior to launching or terminating another
 Pod. This option only affects the behavior for scaling operations. Updates are not affected.
 
-{{< codenew file="application/web/web-parallel.yaml" >}}
+{{% code_sample file="application/web/web-parallel.yaml" %}}
 
 Download the example above, and save it to a file named `web-parallel.yaml`
 
@@ -1202,12 +1219,54 @@ Service:
 kubectl delete svc nginx
 ```
 
+Delete the persistent storage media for the PersistentVolumes used in this tutorial.
 
+```shell
+kubectl get pvc
+```
+```
+NAME        STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+www-web-0   Bound    pvc-2bf00408-d366-4a12-bad0-1869c65d0bee   1Gi        RWO            standard       25m
+www-web-1   Bound    pvc-ba3bfe9c-413e-4b95-a2c0-3ea8a54dbab4   1Gi        RWO            standard       24m
+www-web-2   Bound    pvc-cba6cfa6-3a47-486b-a138-db5930207eaf   1Gi        RWO            standard       15m
+www-web-3   Bound    pvc-0c04d7f0-787a-4977-8da3-d9d3a6d8d752   1Gi        RWO            standard       15m
+www-web-4   Bound    pvc-b2c73489-e70b-4a4e-9ec1-9eab439aa43e   1Gi        RWO            standard       14m
+```
+
+```shell
+kubectl get pv
+```
+```
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM               STORAGECLASS   REASON   AGE
+pvc-0c04d7f0-787a-4977-8da3-d9d3a6d8d752   1Gi        RWO            Delete           Bound    default/www-web-3   standard                15m
+pvc-2bf00408-d366-4a12-bad0-1869c65d0bee   1Gi        RWO            Delete           Bound    default/www-web-0   standard                25m
+pvc-b2c73489-e70b-4a4e-9ec1-9eab439aa43e   1Gi        RWO            Delete           Bound    default/www-web-4   standard                14m
+pvc-ba3bfe9c-413e-4b95-a2c0-3ea8a54dbab4   1Gi        RWO            Delete           Bound    default/www-web-1   standard                24m
+pvc-cba6cfa6-3a47-486b-a138-db5930207eaf   1Gi        RWO            Delete           Bound    default/www-web-2   standard                15m
+```
+
+```shell
+kubectl delete pvc www-web-0 www-web-1 www-web-2 www-web-3 www-web-4
+```
+
+```
+persistentvolumeclaim "www-web-0" deleted
+persistentvolumeclaim "www-web-1" deleted
+persistentvolumeclaim "www-web-2" deleted
+persistentvolumeclaim "www-web-3" deleted
+persistentvolumeclaim "www-web-4" deleted
+```
+
+```shell
+kubectl get pvc
+```
+
+```
+No resources found in default namespace.
+```
 {{< note >}}
 You also need to delete the persistent storage media for the PersistentVolumes
 used in this tutorial.
-
-
 Follow the necessary steps, based on your environment, storage configuration,
 and provisioning method, to ensure that all storage is reclaimed.
 {{< /note >}}

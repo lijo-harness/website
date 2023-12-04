@@ -1,18 +1,7 @@
 <!--
-The file is auto-generated from the Go source code of the component using a generic
-[generator](https://github.com/kubernetes-sigs/reference-docs/). To learn how
-to generate the reference documentation, please read
-[Contributing to the reference documentation](/docs/contribute/generate-ref-docs/).
-To update the reference conent, please follow the 
-[Contributing upstream](/docs/contribute/generate-ref-docs/contribute-upstream/)
-guide. You can file document formatting bugs against the
-[reference-docs](https://github.com/kubernetes-sigs/reference-docs/) project.
--->
-
-<!--
 Commands related to handling kubernetes certificates
 -->
-处理 Kubernetes 证书的相关命令
+处理 Kubernetes 证书的相关命令。
 
 <!--
 ### Synopsis
@@ -22,14 +11,18 @@ Commands related to handling kubernetes certificates
 <!--
 Commands related to handling kubernetes certificates
 -->
-处理 Kubernetes 证书相关的命令
+处理 Kubernetes 证书相关的命令。
+
+```
+kubeadm certs [flags]
+```
 
 <!--
 ### Options
 -->
 ### 选项
 
-   <table style="width: 100%; table-layout: fixed;">
+<table style="width: 100%; table-layout: fixed;">
 <colgroup>
 <col span="1" style="width: 10px;" />
 <col span="1" />
@@ -41,7 +34,12 @@ Commands related to handling kubernetes certificates
 </tr>
 <tr>
 <!-- td></td><td style="line-height: 130%; word-wrap: break-word;"><p>help for certs</p></td -->
-<td></td><td style="line-height: 130%; word-wrap: break-word;"><!-- help for certs--><p>certs 命令的帮助</p></td>
+<td></td><td style="line-height: 130%; word-wrap: break-word;">
+<!--
+help for certs
+-->
+<p>certs 操作的帮助命令。</p>
+</td>
 </tr>
 
 </tbody>
@@ -52,7 +50,7 @@ Commands related to handling kubernetes certificates
 -->
 ### 继承于父命令的选项
 
-   <table style="width: 100%; table-layout: fixed;">
+<table style="width: 100%; table-layout: fixed;">
 <colgroup>
 <col span="1" style="width: 10px;" />
 <col span="1" />
@@ -69,5 +67,3 @@ Commands related to handling kubernetes certificates
 
 </tbody>
 </table>
-
-

@@ -7,26 +7,25 @@ description: >
 
 ## 쿠버네티스 네트워크 모델
 
-모든 [`파드`](/ko/docs/concepts/workloads/pods/)는 고유한 IP 주소를 갖는다. 
+클러스터의 모든 [`파드`](/ko/docs/concepts/workloads/pods/)는 고유한 IP 주소를 갖는다. 
 이는 즉 `파드`간 연결을 명시적으로 만들 필요가 없으며 
 또한 컨테이너 포트를 호스트 포트에 매핑할 필요가 거의 없음을 의미한다. 
 이로 인해 포트 할당, 네이밍, 서비스 디스커버리, 
 [로드 밸런싱](/ko/docs/concepts/services-networking/ingress/#load-balancing), 
-애플리케이션 구성, 마이그레이션 관점에서 `파드`를 
-VM 또는 물리 호스트처럼 다룰 수 있는 깔끔하고 하위 호환성을 갖는 모델이 제시된다.
+애플리케이션 구성, 마이그레이션 관점에서 `파드`를 VM 또는 물리 호스트처럼 다룰 수 있는 깔끔하고
+하위 호환성을 갖는 모델이 제시된다.
 
-쿠버네티스는 모든 네트워킹 구현에 대해 다음과 같은 근본적인 요구사항을 만족할 것을 요구한다 
-(이로 인해 모든 의도적인 네트워크 분할 정책이 방지된다)
+쿠버네티스는 모든 네트워킹 구현에 대해 다음과 같은 근본적인 요구사항을 만족할 것을 요구한다.
+(이를 통해, 의도적인 네트워크 분할 정책을 방지)
 
-   * [노드](/ko/docs/concepts/architecture/nodes/) 상의 파드가 NAT 없이 모든 노드의 모든 파드와 통신할 수 있다
-   * 노드 상의 에이전트(예: 시스템 데몬, kubelet)가 해당 노드의 모든 
-     파드와 통신할 수 있다
+   * 파드는 NAT 없이 [노드](/ko/docs/concepts/architecture/nodes/) 상의 모든 파드와
+     통신할 수 있다.
+   * 노드 상의 에이전트(예: 시스템 데몬, kubelet)는 해당 노드의 모든 
+     파드와 통신할 수 있다.
 
-참고: `파드`를 호스트 네트워크에서 구동하는 것도 지원하는 플랫폼(예: 리눅스)에 대해서는 
-다음의 요구사항도 존재한다.
-
-   * 한 노드의 호스트 네트워크에 있는 파드는 
-     NAT 없이 모든 노드의 모든 파드와 통신할 수 있다
+참고: `파드`를 호스트 네트워크에서 구동하는 것도 지원하는 플랫폼(예:
+리눅스)에 대해서는, 파드가 노드의 호스트 네트워크에 연결되어 있을 때에도 파드는 여전히
+NAT 없이 모든 노드의 모든 파드와 통신할 수 있다.
 
 이 모델은 전반적으로 덜 복잡할 뿐만 아니라, 
 무엇보다도 VM에 있던 앱을 컨테이너로 손쉽게 포팅하려는 쿠버네티스 요구사항을 만족시킬 수 있다. 
@@ -50,5 +49,15 @@ VM 또는 물리 호스트처럼 다룰 수 있는 깔끔하고 하위 호환성
 쿠버네티스 네트워킹은 다음의 네 가지 문제를 해결한다.
 - 파드 내의 컨테이너는 루프백(loopback)을 통한 [네트워킹을 사용하여 통신](/ko/docs/concepts/services-networking/dns-pod-service/)한다.
 - 클러스터 네트워킹은 서로 다른 파드 간의 통신을 제공한다.
-- [서비스 리소스](/ko/docs/concepts/services-networking/service/)를 사용하면 [파드에서 실행 중인 애플리케이션을 클러스터 외부에서 접근](/ko/docs/concepts/services-networking/connect-applications-service/)할 수 있다.
-- 또한 서비스를 사용하여 [서비스를 클러스터 내부에서만 사용할 수 있도록 게시](/ko/docs/concepts/services-networking/service-traffic-policy/)할 수 있다.
+- [서비스](/ko/docs/concepts/services-networking/service/) API를 사용하면
+  [파드에서 실행 중인 애플리케이션을 클러스터 외부에서 접근](/ko/docs/tutorials/services/connect-applications-service/)
+  할 수 있다.
+  - [인그레스](/ko/docs/concepts/services-networking/ingress/)는
+    특히 HTTP 애플리케이션, 웹사이트 그리고 API를 노출하기 위한 추가 기능을 제공한다.
+- 또한 서비스를 사용하여
+  [서비스를 클러스터 내부에서만 사용할 수 있도록 게시](/ko/docs/concepts/services-networking/service-traffic-policy/)할 수 있다.
+
+- [서비스와 애플리케이션 연결하기](/ko/docs/tutorials/services/connect-applications-service/) 튜토리얼에서는 실습 예제를 통해 서비스와 쿠버네티스 네트워킹에 대해 배울 수 있다.
+
+[클러스터 네트워킹](/ko/docs/concepts/cluster-administration/networking/)은
+클러스터에 네트워킹을 설정하는 방법과 관련된 기술에 대한 개요도 제공한다.

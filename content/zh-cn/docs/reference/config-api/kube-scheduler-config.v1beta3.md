@@ -2,7 +2,6 @@
 title: kube-scheduler 配置 (v1beta3)
 content_type: tool-reference
 package: kubescheduler.config.k8s.io/v1beta3
-auto_generated: true
 ---
 <!--
 title: kube-scheduler Configuration (v1beta3)
@@ -14,7 +13,7 @@ auto_generated: true
 <!--
 ## Resource Types
 -->
-## 资源类型
+## 资源类型     {#resource-types}
 
 - [DefaultPreemptionArgs](#kubescheduler-config-k8s-io-v1beta3-DefaultPreemptionArgs)
 - [InterPodAffinityArgs](#kubescheduler-config-k8s-io-v1beta3-InterPodAffinityArgs)
@@ -32,7 +31,6 @@ auto_generated: true
 -->
 **出现在：**
 
-- [KubeSchedulerConfiguration](#kubescheduler-config-k8s-io-v1beta2-KubeSchedulerConfiguration)
 - [KubeSchedulerConfiguration](#kubescheduler-config-k8s-io-v1beta3-KubeSchedulerConfiguration)
 
 <!--
@@ -111,7 +109,6 @@ default value of 'application/json'. This field will control all connections to 
 **出现在：**
 
 - [KubeSchedulerConfiguration](#kubescheduler-config-k8s-io-v1beta3-KubeSchedulerConfiguration)
-- [KubeSchedulerConfiguration](#kubescheduler-config-k8s-io-v1beta2-KubeSchedulerConfiguration)
 
 <!--
 DebuggingConfiguration holds configuration for Debugging related features.
@@ -137,87 +134,10 @@ DebuggingConfiguration holds configuration for Debugging related features.
 </td>
 <td>
    <!--
-   enableContentionProfiling enables lock contention profiling, if
+   enableContentionProfiling enables block profiling, if
 enableProfiling is true.
    -->
-   <p>此字段在 <code>enableProfiling</code> 为 true 时允许执行锁竞争分析。</p>
-</td>
-</tr>
-</tbody>
-</table>
-
-## `FormatOptions`     {#FormatOptions}
-
-<!--
-**Appears in:**
--->
-
-<!--
-FormatOptions contains options for the different logging formats.
--->
-<p>FormatOptions 中包含不同日志格式的配置选项。</p>
-
-<table class="table">
-<thead><tr><th width="30%"><!--Field-->字段</th><th><!--Description-->描述</th></tr></thead>
-<tbody>
-
-<tr><td><code>json</code> <B><!--[Required]-->[必需]</B><br/>
-<a href="#JSONOptions"><code>JSONOptions</code></a>
-</td>
-<td>
-   <!--
-   [Experimental] JSON contains options for logging format &quot;json&quot;.
-   -->
-   <p>[实验特性] <code>json</code> 字段包含为 &quot;json&quot; 日志格式提供的配置选项。</p>
-</td>
-</tr>
-</tbody>
-</table>
-
-## `JSONOptions`     {#JSONOptions}
-
-<!--
-**Appears in:**
--->
-**出现在：**
-
-- [FormatOptions](#FormatOptions)
-
-<!--
-JSONOptions contains options for logging format &quot;json&quot;.
--->
-<p>JSONOptions 包含为 &quot;json&quot; 日志格式所设置的配置选项。</p>
-
-<table class="table">
-<thead><tr><th width="30%"><!--Field-->字段</th><th><!--Description-->描述</th></tr></thead>
-<tbody>
-
-<tr><td><code>splitStream</code> <B><!--[Required]-->[必需]</B><br/>
-<code>bool</code>
-</td>
-<td>
-   <!--
-   [Experimental] SplitStream redirects error messages to stderr while
-info messages go to stdout, with buffering. The default is to write
-both to stdout, without buffering.
-   -->
-   <p>[实验特性] 此字段将错误信息重定向到标准错误输出（stderr），
-   将提示消息重定向到标准输出（stdout），并且支持缓存。
-   默认配置为将二者都输出到标准输出（stdout），且不提供缓存。</p>
-</td>
-</tr>
-<tr><td><code>infoBufferSize</code> <B><!--[Required]-->[必需]</B><br/>
-<a href="https://pkg.go.dev/k8s.io/apimachinery/pkg/api/resource#QuantityValue"><code>k8s.io/apimachinery/pkg/api/resource.QuantityValue</code></a>
-</td>
-<td>
-   <!--
-   [Experimental] InfoBufferSize sets the size of the info stream when
-using split streams. The default is zero, which disables buffering.
-   -->
-   <p>
-   [实验特性] <code>infoBufferSize</code> 用来在分离数据流场景是设置提示信息数据流的大小。
-   默认值为 0，意味着禁止缓存。
-   </p>
+   <p>此字段在 <code>enableProfiling</code> 为 true 时允许执行阻塞性能分析。</p>
 </td>
 </tr>
 </tbody>
@@ -230,7 +150,6 @@ using split streams. The default is zero, which disables buffering.
 -->
 **出现在：**
 
-- [KubeSchedulerConfiguration](#kubescheduler-config-k8s-io-v1beta2-KubeSchedulerConfiguration)
 - [KubeSchedulerConfiguration](#kubescheduler-config-k8s-io-v1beta3-KubeSchedulerConfiguration)
 
 <!--
@@ -319,7 +238,7 @@ leader election is enabled.
    resourceLock indicates the resource object type that will be used to lock
 during leader election cycles.
    -->
-   <p>此字段给出在领导者选举期间要作为锁来使用的资源对象类型。</p>
+   <p>resourceLock 给出在领导者选举期间要作为锁来使用的资源对象类型。</p>
 </td>
 </tr>
 <tr><td><code>resourceName</code> <B><!--[Required]-->[必需]</B><br/>
@@ -330,7 +249,7 @@ during leader election cycles.
    resourceName indicates the name of resource object that will be used to lock
 during leader election cycles.
    -->
-   <p>此字段给出在领导者选举期间要作为锁来使用的资源对象名称。</p>
+   <p>resourceName 给出在领导者选举期间要作为锁来使用的资源对象名称。</p>
 </td>
 </tr>
 <tr><td><code>resourceNamespace</code> <B><!--[Required]-->[必需]</B><br/>
@@ -338,123 +257,14 @@ during leader election cycles.
 </td>
 <td>
    <!--
-   resourceName indicates the namespace of resource object that will be used to lock
+   resourceNamespace indicates the namespace of resource object that will be used to lock
 during leader election cycles.
    -->
-   <p>此字段给出在领导者选举期间要作为锁来使用的资源对象所在名字空间。</p>
+   <p>resourceNamespace 给出在领导者选举期间要作为锁来使用的资源对象所在名字空间。</p>
 </td>
 </tr>
 </tbody>
 </table>
-
-## `LoggingConfiguration`     {#LoggingConfiguration}
-
-<!--
-**Appears in:**
--->
-**出现在：**
-
-- [KubeletConfiguration](#kubelet-config-k8s-io-v1beta1-KubeletConfiguration)
-
-<!--
-LoggingConfiguration contains logging options
-Refer <a href="https://github.com/kubernetes/component-base/blob/master/logs/options.go">Logs Options</a> for more information.
--->
-<p>
-LoggingConfiguration 包含日志选项。
-参考 [Logs Options](https://github.com/kubernetes/component-base/blob/master/logs/options.go) 以了解更多信息。
-</p>
-
-<table class="table">
-<thead><tr><th width="30%"><!--Field-->字段</th><th><!--Description-->描述</th></tr></thead>
-<tbody>
-
-<tr><td><code>format</code> <B><!--[Required]-->[必需]</B><br/>
-<code>string</code>
-</td>
-<td>
-<!--
-Format Flag specifies the structure of log messages.
-default value of format is <code>text</code>
--->
-   <p><code>format</code> 设置日志消息的结构。默认的格式取值为 <code>text</code>。</p>
-</td>
-</tr>
-<tr><td><code>flushFrequency</code> <B><!--[Required]-->[必需]</B><br/>
-<a href="https://pkg.go.dev/time#Duration"><code>time.Duration</code></a>
-</td>
-<td>
-<!--
-Maximum number of nanoseconds (i.e. 1s = 1000000000) between log
-flushes.  Ignored if the selected logging backend writes log
-messages without buffering.
--->
-   <p>对日志进行清洗的最大间隔纳秒数（例如，1s = 1000000000）。
-   如果所选的日志后端在写入日志消息时不提供缓存，则此配置会被忽略。</p>
-</td>
-</tr>
-<tr><td><code>verbosity</code> <B><!--[Required]-->[必需]</B><br/>
-<code>uint32</code>
-</td>
-<td>
-<!--
-Verbosity is the threshold that determines which log messages are
-logged. Default is zero which logs only the most important
-messages. Higher values enable additional messages. Error messages
-are always logged.
--->
-   <p><code>verbosity</code> 用来确定日志消息记录的详细程度阈值。
-   默认值为 0，意味着仅记录最重要的消息。
-   数值越大，额外的消息越多。错误消息总是被记录下来。</p>
-</td>
-</tr>
-<tr><td><code>vmodule</code> <B><!--[Required]-->[必需]</B><br/>
-<a href="#VModuleConfiguration"><code>VModuleConfiguration</code></a>
-</td>
-<td>
-<!--
-VModule overrides the verbosity threshold for individual files.
-Only supported for &quot;text&quot; log format.
--->
-   <p><code>vmodule</code> 会在单个文件层面重载 verbosity 阈值的设置。
-   这一选项仅支持 &quot;text&quot; 日志格式。</p>
-</td>
-</tr>
-<tr><td><code>options</code> <B><!--[Required]-->[必需]</B><br/>
-<a href="#FormatOptions"><code>FormatOptions</code></a>
-</td>
-<td>
-<!--
-[Experimental] Options holds additional parameters that are specific
-to the different logging formats. Only the options for the selected
-format get used, but all of them get validated.
--->
-   <p>[实验特性] <code>options</code> 中包含特定于不同日志格式的配置参数。
-   只有针对所选格式的选项会被使用，但是合法性检查时会查看所有选项配置。</p>
-</td>
-</tr>
-</tbody>
-</table>
-
-## `VModuleConfiguration`     {#VModuleConfiguration}
-
-<!--
-(Alias of `[]k8s.io/component-base/config/v1alpha1.VModuleItem`)
-
-**Appears in:**
--->
-
-（`[]k8s.io/component-base/config/v1alpha1.VModuleItem` 的别名)
-
-**出现在：**
-
-- [LoggingConfiguration](#LoggingConfiguration)
-
-<!--
-VModuleConfiguration is a collection of individual file names or patterns
-and the corresponding verbosity threshold.
--->
-<p>VModuleConfiguration 是一组文件名（通配符）及其对应的日志详尽程度阈值。</p>
 
 ## `DefaultPreemptionArgs`     {#kubescheduler-config-k8s-io-v1beta3-DefaultPreemptionArgs}
 
@@ -532,8 +342,22 @@ InterPodAffinityArgs holds arguments used to configure the InterPodAffinity plug
 matching hard affinity to the incoming pod.
    -->
    <p>此字段是一个计分权重值。针对新增的 Pod，要对现存的、
-   带有与新 Pod 匹配的硬性亲和性设置的 Pods 计算亲和性得分。
+   带有与新 Pod 匹配的硬性亲和性设置的 Pod 计算亲和性得分。
    </p>
+</td>
+</tr>
+<tr><td><code>ignorePreferredTermsOfExistingPods</code> <B><!--[Required]-->【必需】</B><br/>
+<code>bool</code>
+</td>
+<td>
+   <p>
+   <!--
+   IgnorePreferredTermsOfExistingPods configures the scheduler to ignore existing pods' preferred affinity
+   rules when scoring candidate nodes, unless the incoming pod has inter-pod affinities.
+  -->
+  ignorePreferredTermsOfExistingPods 将调度器配置为在对候选节点进行评分时忽略现有
+  Pod 的首选亲和性规则，除非传入的 Pod 具有 Pod 间亲和性规则。
+  </p>
 </td>
 </tr>
 </tbody>
@@ -678,7 +502,7 @@ with the extender. These extenders are shared by all scheduler profiles.
    -->
    <p>此字段为调度器扩展模块（Extender）的列表，
    每个元素包含如何与某扩展模块通信的配置信息。
-   所有调度器模仿会共享此扩展模块列表。</p>
+   所有调度器方案会共享此扩展模块列表。</p>
 </td>
 </tr>
 </tbody>
@@ -699,7 +523,7 @@ NodeAffinityArgs holds arguments to configure the NodeAffinity plugin.
 <tr><td><code>kind</code><br/>string</td><td><code>NodeAffinityArgs</code></td></tr>
 
 <tr><td><code>addedAffinity</code><br/>
-<a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#nodeaffinity-v1-core"><code>core/v1.NodeAffinity</code></a>
+<a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.28/#nodeaffinity-v1-core"><code>core/v1.NodeAffinity</code></a>
 </td>
 <td>
    <!--
@@ -820,7 +644,7 @@ PodTopologySpreadArgs holds arguments used to configure the PodTopologySpread pl
 <tr><td><code>kind</code><br/>string</td><td><code>PodTopologySpreadArgs</code></td></tr>
 
 <tr><td><code>defaultConstraints</code><br/>
-<a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#topologyspreadconstraint-v1-core"><code>[]core/v1.TopologySpreadConstraint</code></a>
+<a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.28/#topologyspreadconstraint-v1-core"><code>[]core/v1.TopologySpreadConstraint</code></a>
 </td>
 <td>
    <!--
@@ -1484,6 +1308,15 @@ be invoked before default plugins, default plugins must be disabled and re-enabl
 <table class="table">
 <thead><tr><th width="30%"><!--Field-->字段</th><th><!--Description-->描述</th></tr></thead>
 <tbody>
+
+<tr><td><code>preEnqueue</code> <B><!--[Required]-->[必需]</B><br/>
+<a href="#kubescheduler-config-k8s-io-v1beta3-PluginSet"><code>PluginSet</code></a>
+</td>
+<td>
+<!-- PreEnqueue is a list of plugins that should be invoked before adding pods to the scheduling queue. -->
+   <p>PreEnqueue 是一个在将 Pod 添加到调度队列之前应该调用的插件列表。</p>
+</td>
+</tr>
 
 <tr><td><code>queueSort</code> <B><!--[Required]-->[必需]</B><br/>
 <a href="#kubescheduler-config-k8s-io-v1beta3-PluginSet"><code>PluginSet</code></a>

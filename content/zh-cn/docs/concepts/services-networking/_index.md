@@ -89,15 +89,40 @@ blind to the existence or non-existence of host ports.
 Kubernetes networking addresses four concerns:
 - Containers within a Pod [use networking to communicate](/docs/concepts/services-networking/dns-pod-service/) via loopback.
 - Cluster networking provides communication between different Pods.
-- The [Service resource](/docs/concepts/services-networking/service/) lets you [expose an application running in Pods](/docs/concepts/services-networking/connect-applications-service/) to be reachable from outside your cluster.
-- You can also use Services to [publish services only for consumption inside your cluster](/docs/concepts/services-networking/service-traffic-policy/).
+- The [Service](/docs/concepts/services-networking/service/) API lets you
+  [expose an application running in Pods](/docs/tutorials/services/connect-applications-service/)
+  to be reachable from outside your cluster.
+  - [Ingress](/docs/concepts/services-networking/ingress/) provides extra functionality
+    specifically for exposing HTTP applications, websites and APIs.
+  - [Gateway API](/docs/concepts/services-networking/gateway/) is an {{<glossary_tooltip text="add-on" term_id="addons">}}
+    that provides an expressive, extensible, and role-oriented family of API kinds for modeling service networking.
+- You can also use Services to
+  [publish services only for consumption inside your cluster](/docs/concepts/services-networking/service-traffic-policy/).
 -->
-
 Kubernetes 网络解决四方面的问题：
 
 - 一个 Pod 中的容器之间[通过本地回路（loopback）通信](/zh-cn/docs/concepts/services-networking/dns-pod-service/)。
-- 集群网络在不同 pod 之间提供通信。
-- [Service 资源](/zh-cn/docs/concepts/services-networking/service/)允许你
-  [向外暴露 Pods 中运行的应用](/zh-cn/docs/concepts/services-networking/connect-applications-service/)，
+- 集群网络在不同 Pod 之间提供通信。
+- [Service](/zh-cn/docs/concepts/services-networking/service/) API
+  允许你[向外暴露 Pod 中运行的应用](/zh-cn/docs/tutorials/services/connect-applications-service/)，
   以支持来自于集群外部的访问。
-- 可以使用 Services 来[发布仅供集群内部使用的服务](/zh-cn/docs/concepts/services-networking/service-traffic-policy/)。
+  - [Ingress](/zh-cn/docs/concepts/services-networking/ingress/)
+    提供专门用于暴露 HTTP 应用程序、网站和 API 的额外功能。
+  - [Gateway API](/zh-cn/docs/concepts/services-networking/gateway/)
+    是一个{{<glossary_tooltip text="插件" term_id="addons">}}，
+    为服务网络建模提供富有表现力、可扩展和面向角色的 API 系列类别。
+- 你也可以使用 Service
+  来[发布仅供集群内部使用的服务](/zh-cn/docs/concepts/services-networking/service-traffic-policy/)。
+
+<!--
+The [Connecting Applications with Services](/docs/tutorials/services/connect-applications-service/)
+tutorial lets you learn about Services and Kubernetes networking with a hands-on example.
+
+[Cluster Networking](/docs/concepts/cluster-administration/networking/) explains how to set
+up networking for your cluster, and also provides an overview of the technologies involved.
+-->
+[使用 Service 连接到应用](/zh-cn/docs/tutorials/services/connect-applications-service/)教程通过一个实际的示例让你了解
+Service 和 Kubernetes 如何联网。
+
+[集群网络](/zh-cn/docs/concepts/cluster-administration/networking/)解释了如何为集群设置网络，
+还概述了所涉及的技术。

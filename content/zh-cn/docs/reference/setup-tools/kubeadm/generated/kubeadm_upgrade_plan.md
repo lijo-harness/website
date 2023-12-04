@@ -32,7 +32,7 @@ kubeadm upgrade plan [version] [flags]
 Show unstable versions of Kubernetes as an upgrade alternative and allow upgrading to an alpha/beta/release candidate versions of Kubernetes.
 -->
 <p>
-显示不稳定版本的 Kubernetes 作为升级替代方案，并允许升级到 Kubernetes 的 Alpha/Beta/发行候选版本。
+显示不稳定版本的 Kubernetes 作为升级替代方案，并允许升级到 Kubernetes 的 Alpha、Beta 或 RC 版本。
 </p>
 </td>
 </tr>
@@ -46,7 +46,7 @@ Show unstable versions of Kubernetes as an upgrade alternative and allow upgradi
 Show release candidate versions of Kubernetes as an upgrade alternative and allow upgrading to a release candidate versions of Kubernetes.
 -->
 <p>
-显示 Kubernetes 的发行候选版本作为升级选择，并允许升级到 Kubernetes 的发行候选版本。
+显示 Kubernetes 的发行候选版本作为升级选择，并允许升级到 Kubernetes 的 RC 版本。
 </p>
 </td>
 </tr>
@@ -71,13 +71,18 @@ Path to a kubeadm configuration file.
 <tr>
 <td></td><td style="line-height: 130%; word-wrap: break-word;">
 <!--
-A set of key=value pairs that describe feature gates for various features. Options are:<br/>PublicKeysECDSA=true|false (ALPHA - default=false)<br/>RootlessControlPlane=true|false (ALPHA - default=false)<br/>UnversionedKubeletConfigMap=true|false (BETA - default=true)
+A set of key=value pairs that describe feature gates for various features. Options are:<br/>
+EtcdLearnerMode=true|false (ALPHA - default=false)<br/>
+PublicKeysECDSA=true|false (ALPHA - default=false)<br/>
+RootlessControlPlane=true|false (ALPHA - default=false)<br/>
+UpgradeAddonsBeforeControlPlane=true|false (DEPRECATED - default=false)
 -->
 <p>
-一组描述各种特征特性门控的键值对。选项有：
-<br/>PublicKeysECDSA=true|false (ALPHA - 默认值=false)
-<br/>RootlessControlPlane=true|false (ALPHA - 默认值=false)
-<br/>UnversionedKubeletConfigMap=true|false (BETA - 默认值=true)
+一组描述各种特征特性门控的键值对。选项有：<br/>
+EtcdLearnerMode=true|false (ALPHA - 默认值=false)<br/>
+PublicKeysECDSA=true|false (ALPHA - 默认值=false)<br/>
+RootlessControlPlane=true|false (ALPHA - 默认值=false)<br/>
+UpgradeAddonsBeforeControlPlane=true|false (DEPRECATED - 默认值=false)
 </p>
 </td>
 </tr>
@@ -91,7 +96,7 @@ A set of key=value pairs that describe feature gates for various features. Optio
 help for plan
 -->
 <p>
-plan 的帮助信息
+plan 操作的帮助命令。
 </p>
 </td>
 </tr>
@@ -105,7 +110,7 @@ plan 的帮助信息
 A list of checks whose errors will be shown as warnings. Example: 'IsPrivilegedUser,Swap'. Value 'all' ignores errors from all checks.
 -->
 <p>
-其错误将显示为警告的检查列表。 例如：'IsPrivilegedUser,Swap'。 值 'all' 忽略所有检查错误。
+其错误将显示为警告的检查列表。例如：'IsPrivilegedUser,Swap'。值 'all' 忽略所有检查错误。
 </p>
 </td>
 </tr>
@@ -130,6 +135,23 @@ The kubeconfig file to use when talking to the cluster. If the flag is not set, 
 </tr>
 
 <tr>
+<td colspan="2">-o, --output string&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<!--
+Default: "text"
+-->
+默认值："text"
+</td>
+</tr>
+<tr>
+<td></td><td style="line-height: 130%; word-wrap: break-word;"><p>
+<!--
+EXPERIMENTAL: Output format. One of: text|json|yaml.
+-->
+实验性功能；输出格式为 text|json|yaml 其中的一种。
+</p></td>
+</tr>
+
+<tr>
 <td colspan="2">--print-config</td>
 </tr>
 <tr>
@@ -143,9 +165,20 @@ Specifies whether the configuration file that will be used in the upgrade should
 </td>
 </tr>
 
+<tr>
+<td colspan="2">--show-managed-fields</td>
+</tr>
+<tr>
+<td></td><td style="line-height: 130%; word-wrap: break-word;"><p>
+<!--
+If true, keep the managedFields when printing objects in JSON or YAML format.
+-->
+如果开启，以 JSON 或 YAML 格式打印对象时会保留 managedField。
+</p></td>
+</tr>
+
 </tbody>
 </table>
-
 
 <!--
 ### Options inherited from parent commands
@@ -168,7 +201,7 @@ Specifies whether the configuration file that will be used in the upgrade should
 [EXPERIMENTAL] The path to the 'real' host root filesystem.
 -->
 <p>
-[EXPERIMENTAL] “真实”主机根文件系统的路径。
+[实验] 指向 “真实” 宿主机根文件系统的路径。
 </p>
 </td>
 </tr>

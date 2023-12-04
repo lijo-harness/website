@@ -17,14 +17,14 @@ weight: 30
 <img src="/images/kubeadm-stacked-color.png" align="right" width="150px"></img>
 Using `kubeadm`, you can create a minimum viable Kubernetes cluster that conforms to best practices.
 In fact, you can use `kubeadm` to set up a cluster that will pass the
-[Kubernetes Conformance tests](https://kubernetes.io/blog/2017/10/software-conformance-certification).
+[Kubernetes Conformance tests](/blog/2017/10/software-conformance-certification/).
 `kubeadm` also supports other cluster lifecycle functions, such as
 [bootstrap tokens](/docs/reference/access-authn-authz/bootstrap-tokens/) and cluster upgrades.
 -->
 <img src="/images/kubeadm-stacked-color.png" align="right" width="150px"></img>
 使用 `kubeadm`，你能创建一个符合最佳实践的最小化 Kubernetes 集群。
 事实上，你可以使用 `kubeadm` 配置一个通过
-[Kubernetes 一致性测试](https://kubernetes.io/blog/2017/10/software-conformance-certification)的集群。
+[Kubernetes 一致性测试](/blog/2017/10/software-conformance-certification/)的集群。
 `kubeadm` 还支持其他集群生命周期功能，
 例如[启动引导令牌](/zh-cn/docs/reference/access-authn-authz/bootstrap-tokens/)和集群升级。
 
@@ -68,7 +68,7 @@ To follow this guide, you need:
 
 - 一台或多台运行兼容 deb/rpm 的 Linux 操作系统的计算机；例如：Ubuntu 或 CentOS。
 - 每台机器 2 GB 以上的内存，内存不足时应用会受限制。
-- 用作控制平面节点的计算机上至少有2个 CPU。
+- 用作控制平面节点的计算机上至少有 2 个 CPU。
 - 集群中所有计算机之间具有完全的网络连接。你可以使用公共网络或专用网络。
 
 <!--
@@ -83,7 +83,8 @@ applies to `kubeadm` as well as to Kubernetes overall.
 Check that policy to learn about what versions of Kubernetes and `kubeadm`
 are supported. This page is written for Kubernetes {{< param "version" >}}.
 -->
-[Kubernetes 版本及版本偏差策略](/zh-cn/releases/version-skew-policy/#supported-versions)适用于 `kubeadm` 以及整个 Kubernetes。
+[Kubernetes 版本及版本偏差策略](/zh-cn/releases/version-skew-policy/#supported-versions)适用于
+`kubeadm` 以及整个 Kubernetes。
 查阅该策略以了解支持哪些版本的 Kubernetes 和 `kubeadm`。
 该页面是为 Kubernetes {{< param "version" >}} 编写的。
 
@@ -95,11 +96,11 @@ slightly as the tool evolves, but the overall implementation should be pretty st
 `kubeadm` 工具的整体功能状态为一般可用性（GA）。一些子功能仍在积极开发中。
 随着工具的发展，创建集群的实现可能会略有变化，但总体实现应相当稳定。
 
+{{< note >}}
 <!--
 Any commands under `kubeadm alpha` are, by definition, supported on an alpha level.
 -->
-{{< note >}}
-根据定义，在 `kubeadm alpha` 下的所有命令均在 alpha 级别上受支持。
+根据定义，在 `kubeadm alpha` 下的所有命令均在 Alpha 级别上受支持。
 {{< /note >}}
 
 <!-- steps -->
@@ -124,8 +125,12 @@ Any commands under `kubeadm alpha` are, by definition, supported on an alpha lev
 
 <!--
 ### Preparing the hosts
+
+#### Component installation
 -->
 ### 主机准备 {#preparing-the-hosts}
+
+#### 安装组件   {#component-installation}
 
 <!--
 Install a {{< glossary_tooltip term_id="container-runtime" text="container runtime" >}} and kubeadm on all the hosts.
@@ -134,22 +139,119 @@ For detailed instructions and other prerequisites, see [Installing kubeadm](/doc
 在所有主机上安装 {{< glossary_tooltip term_id="container-runtime" text="容器运行时" >}} 和 kubeadm。
 详细说明和其他前提条件，请参见[安装 kubeadm](/zh-cn/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)。
 
+{{< note >}}
 <!--
-If you have already installed kubeadm, run `apt-get update &&
-apt-get upgrade` or `yum update` to get the latest version of kubeadm.
+If you have already installed kubeadm, see the first two steps of the
+[Upgrading Linux nodes](/docs/tasks/administer-cluster/kubeadm/upgrading-linux-nodes) document for instructions on how to upgrade kubeadm.
 
 When you upgrade, the kubelet restarts every few seconds as it waits in a crashloop for
 kubeadm to tell it what to do. This crashloop is expected and normal.
 After you initialize your control-plane, the kubelet runs normally.
 -->
-{{< note >}}
-如果你已经安装了kubeadm，执行 `apt-get update &&
-apt-get upgrade` 或 `yum update` 以获取 kubeadm 的最新版本。
+如果你已经安装了 kubeadm，
+请查看[升级 Linux 节点](/zh-cn/docs/tasks/administer-cluster/kubeadm/upgrading-linux-nodes)文档的前两步，
+了解如何升级 kubeadm 的说明。
 
 升级时，kubelet 每隔几秒钟重新启动一次，
 在 crashloop 状态中等待 kubeadm 发布指令。crashloop 状态是正常现象。
 初始化控制平面后，kubelet 将正常运行。
 {{< /note >}}
+
+<!--
+#### Network setup
+
+kubeadm similarly to other Kubernetes components tries to find a usable IP on
+the network interfaces associated with the default gateway on a host. Such
+an IP is then used for the advertising and/or listening performed by a component.
+-->
+#### 网络设置   {#network-setup}
+
+kubeadm 与其他 Kubernetes 组件类似，会尝试在与主机默认网关关联的网络接口上找到可用的 IP 地址。
+这个 IP 地址随后用于由某组件执行的公告和/或监听。
+
+<!--
+To find out what this IP is on a Linux host you can use:
+
+```shell
+ip route show # Look for a line starting with "default via"
+```
+-->
+要在 Linux 主机上获得此 IP 地址，你可以使用以下命令：
+
+```shell
+ip route show # 查找以 "default via" 开头的行
+```
+
+{{< note >}}
+<!--
+If the host does not have a default gateway and if a custom IP address is not passed
+to a Kubernetes component, the component may exit with an error.
+-->
+如果主机没有默认网关，并且未给 Kubernetes 组件赋予自定义 IP，此组件可能会报错退出。
+{{< /note >}}
+
+<!--
+Kubernetes components do not accept custom network interface as an option,
+therefore a custom IP address must be passed as a flag to all components instances
+that need such a custom configuration.
+
+To configure the API server advertise address for control plane nodes created with both
+`init` and `join`, the flag `--apiserver-advertise-address` can be used.
+Preferably, this option can be set in the [kubeadm API](/docs/reference/config-api/kubeadm-config.v1beta3)
+as `InitConfiguration.localAPIEndpoint` and `JoinConfiguration.controlPlane.localAPIEndpoint`.
+-->
+Kubernetes 组件不接受自定义网络接口作为选项，因此必须将自定义 IP
+地址作为标志传递给所有需要此自定义配置的组件实例。
+
+要为使用 `init` 或 `join` 创建的控制平面节点配置 API 服务器的公告地址，
+你可以使用 `--apiserver-advertise-address` 标志。
+最好在 [kubeadm API](/zh-cn/docs/reference/config-api/kubeadm-config.v1beta3)中使用
+`InitConfiguration.localAPIEndpoint` 和 `JoinConfiguration.controlPlane.localAPIEndpoint`
+来设置此选项。
+
+<!--
+For kubelets on all nodes, the `--node-ip` option can be passed in
+`.nodeRegistration.kubeletExtraArgs` inside a kubeadm configuration file
+(`InitConfiguration` or `JoinConfiguration`).
+
+For dual-stack see
+[Dual-stack support with kubeadm](/docs/setup/production-environment/tools/kubeadm/dual-stack-support).
+-->
+对于所有节点上的 kubelet，`--node-ip` 选项可以在 kubeadm 配置文件
+（`InitConfiguration` 或 `JoinConfiguration`）的 `.nodeRegistration.kubeletExtraArgs`
+中设置。
+
+有关双协议栈细节参见[使用 kubeadm 支持双协议栈](/zh-cn/docs/setup/production-environment/tools/kubeadm/dual-stack-support)。
+
+<!--
+The IP addresses that you assign to control plane components become part of their X.509 certificates'
+subject alternative name fields. Changing these IP addresses would require
+signing new certificates and restarting the affected components, so that the change in
+certificate files is reflected. See
+[Manual certificate renewal](/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/#manual-certificate-renewal)
+for more details on this topic.
+-->
+控制平面组件所分配的 IP 地址将成为其 X.509 证书的使用者备用名称字段的一部分。
+更改这些 IP 地址将需要签署新的证书并重启受影响的组件，
+以便反映证书文件中的变化。有关此主题的更多细节参见
+[手动续期证书](/zh-cn/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/#manual-certificate-renewal)。
+
+{{< warning >}}
+<!--
+The Kubernetes project recommends against this approach (configuring all component instances
+with custom IP addresses). Instead, the Kubernetes maintainers recommend to setup the host network,
+so that the default gateway IP is the one that Kubernetes components auto-detect and use.
+On Linux nodes, you can use commands such as `ip route` to configure networking; your operating
+system might also provide higher level network management tools. If your node's default gateway
+is a public IP address, you should configure packet filtering or other security measures that
+protect the nodes and your cluster.
+-->
+Kubernetes 项目不推荐此方法（使用自定义 IP 地址配置所有组件实例）。
+Kubernetes 维护者建议设置主机网络，使默认网关 IP 成为 Kubernetes 组件自动检测和使用的 IP。
+对于 Linux 节点，你可以使用诸如 `ip route` 的命令来配置网络；
+你的操作系统可能还提供更高级的网络管理工具。
+如果节点的默认网关是公共 IP 地址，你应配置数据包过滤或其他保护节点和集群的安全措施。
+{{< /warning >}}
 
 <!--
 ### Preparing the required container images
@@ -158,20 +260,22 @@ apt-get upgrade` 或 `yum update` 以获取 kubeadm 的最新版本。
 
 <!--
 This step is optional and only applies in case you wish `kubeadm init` and `kubeadm join`
-to not download the default container images which are hosted at `k8s.gcr.io`.
+to not download the default container images which are hosted at `registry.k8s.io`.
 
 Kubeadm has commands that can help you pre-pull the required images
 when creating a cluster without an internet connection on its nodes.
-See [Running kubeadm without an internet connection](/docs/reference/setup-tools/kubeadm/kubeadm-init#without-internet-connection) for more details.
+See [Running kubeadm without an internet connection](/docs/reference/setup-tools/kubeadm/kubeadm-init#without-internet-connection)
+for more details.
 
 Kubeadm allows you to use a custom image repository for the required images.
 See [Using custom images](/docs/reference/setup-tools/kubeadm/kubeadm-init#custom-images)
 for more details.
 -->
-这个步骤是可选的，只适用于你希望 `kubeadm init` 和 `kubeadm join` 不去下载存放在 `k8s.gcr.io` 上的默认的容器镜像的情况。
+这个步骤是可选的，只适用于你希望 `kubeadm init` 和 `kubeadm join` 不去下载存放在
+`registry.k8s.io` 上的默认的容器镜像的情况。
 
 当你在离线的节点上创建一个集群的时候，Kubeadm 有一些命令可以帮助你预拉取所需的镜像。
-阅读[离线运行 kubeadm](/zh-cn/docs/reference/setup-tools/kubeadm/kubeadm-init#custom-images)
+阅读[离线运行 kubeadm](/zh-cn/docs/reference/setup-tools/kubeadm/kubeadm-init#without-internet-connection)
 获取更多的详情。
 
 Kubeadm 允许你给所需要的镜像指定一个自定义的镜像仓库。
@@ -191,8 +295,8 @@ The control-plane node is the machine where the control plane components run, in
 communicates with).
 -->
 控制平面节点是运行控制平面组件的机器，
-包括 {{< glossary_tooltip term_id="etcd" >}} （集群数据库）
-和 {{< glossary_tooltip text="API Server" term_id="kube-apiserver" >}}
+包括 {{< glossary_tooltip term_id="etcd" >}}（集群数据库）
+和 {{< glossary_tooltip text="API 服务器" term_id="kube-apiserver" >}}
 （命令行工具 {{< glossary_tooltip text="kubectl" term_id="kubectl" >}} 与之通信）。
 
 <!--
@@ -207,7 +311,7 @@ a provider-specific value. See [Installing a Pod network add-on](#pod-network).
 1. （推荐）如果计划将单个控制平面 kubeadm 集群升级成高可用，
    你应该指定 `--control-plane-endpoint` 为所有控制平面节点设置共享端点。
    端点可以是负载均衡器的 DNS 名称或 IP 地址。
-1. 选择一个 Pod 网络插件，并验证是否需要为 `kubeadm init` 传递参数。
+2. 选择一个 Pod 网络插件，并验证是否需要为 `kubeadm init` 传递参数。
    根据你选择的第三方网络插件，你可能需要设置 `--pod-network-cidr` 的值。
    请参阅[安装 Pod 网络附加组件](#pod-network)。
 
@@ -216,19 +320,10 @@ a provider-specific value. See [Installing a Pod network add-on](#pod-network).
 known endpoints. To use different container runtime or if there are more than one installed
 on the provisioned node, specify the `--cri-socket` argument to `kubeadm`. See
 [Installing a runtime](/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#installing-runtime).
-1. (Optional) Unless otherwise specified, `kubeadm` uses the network interface associated
-with the default gateway to set the advertise address for this particular control-plane node's API server.
-To use a different network interface, specify the `--apiserver-advertise-address=<ip-address>` argument
-to `kubeadm init`. To deploy an IPv6 Kubernetes cluster using IPv6 addressing, you
-must specify an IPv6 address, for example `--apiserver-advertise-address=fd00::101`
 -->
-1. （可选）`kubeadm` 试图通过使用已知的端点列表来检测容器运行时。
+3. （可选）`kubeadm` 试图通过使用已知的端点列表来检测容器运行时。
    使用不同的容器运行时或在预配置的节点上安装了多个容器运行时，请为 `kubeadm init` 指定 `--cri-socket` 参数。
    请参阅[安装运行时](/zh-cn/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#installing-runtime)。
-1. （可选）除非另有说明，否则 `kubeadm` 使用与默认网关关联的网络接口来设置此控制平面节点 API server 的广播地址。
-   要使用其他网络接口，请为 `kubeadm init` 设置 `--apiserver-advertise-address=<ip-address>` 参数。
-   要部署使用 IPv6 地址的 Kubernetes 集群，
-   必须指定一个 IPv6 地址，例如 `--apiserver-advertise-address=fd00::101`
 
 <!--
 To initialize the control-plane node run:
@@ -275,8 +370,9 @@ This will allow you to pass `--control-plane-endpoint=cluster-endpoint` to `kube
 high availability scenario.
 -->
 其中 `192.168.0.102` 是此节点的 IP 地址，`cluster-endpoint` 是映射到该 IP 的自定义 DNS 名称。
-这将允许你将 `--control-plane-endpoint=cluster-endpoint` 传递给 `kubeadm init`，并将相同的 DNS 名称传递给 `kubeadm join`。
-稍后你可以修改 `cluster-endpoint` 以指向高可用性方案中的负载均衡器的地址。
+这将允许你将 `--control-plane-endpoint=cluster-endpoint` 传递给 `kubeadm init`，
+并将相同的 DNS 名称传递给 `kubeadm join`。稍后你可以修改 `cluster-endpoint`
+以指向高可用性方案中的负载均衡器的地址。
 
 <!--
 Turning a single control plane cluster created without `--control-plane-endpoint` into a highly available cluster
@@ -313,8 +409,8 @@ for control plane components and etcd server, provide extra arguments to each co
 To reconfigure a cluster that has already been created see
 [Reconfiguring a kubeadm cluster](/docs/tasks/administer-cluster/kubeadm/kubeadm-reconfigure).
 -->
-要重新配置一个已经创建的集群，请参见
-[重新配置一个 kubeadm 集群](/zh-cn/docs/tasks/administer-cluster/kubeadm/kubeadm-reconfigure)。
+要重新配置一个已经创建的集群，
+请参见[重新配置一个 kubeadm 集群](/zh-cn/docs/tasks/administer-cluster/kubeadm/kubeadm-reconfigure)。
 
 <!--
 To run `kubeadm init` again, you must first [tear down the cluster](#tear-down).
@@ -334,8 +430,8 @@ is ready to run Kubernetes. These prechecks expose warnings and exit on errors. 
 then downloads and installs the cluster control plane components. This may take several minutes.
 After it finishes you should see:
 -->
-`kubeadm init` 首先运行一系列预检查以确保机器
-准备运行 Kubernetes。这些预检查会显示警告并在错误时退出。然后 `kubeadm init`
+`kubeadm init` 首先运行一系列预检查以确保机器为运行 Kubernetes 准备就绪。
+这些预检查会显示警告并在错误时退出。然后 `kubeadm init`
 下载并安装集群控制平面组件。这可能会需要几分钟。
 完成之后你应该看到：
 
@@ -437,8 +533,8 @@ Read all of this advice carefully before proceeding.
 Cluster DNS (CoreDNS) will not start up before a network is installed.**
 -->
 **你必须部署一个基于 Pod 网络插件的
-{{< glossary_tooltip text="容器网络接口" term_id="cni" >}}
-(CNI)，以便你的 Pod 可以相互通信。
+{{< glossary_tooltip text="容器网络接口" term_id="cni" >}}（CNI），
+以便你的 Pod 可以相互通信。
 在安装网络之前，集群 DNS (CoreDNS) 将不会启动。**
 
 <!--
@@ -462,8 +558,9 @@ Cluster DNS (CoreDNS) will not start up before a network is installed.**
   Make sure that your Pod network plugin supports RBAC, and so do any manifests
   that you use to deploy it.
 -->
-- 默认情况下，`kubeadm` 将集群设置为使用和强制使用 [RBAC](/zh-cn/docs/reference/access-authn-authz/rbac/)（基于角色的访问控制）。
-  确保你的 Pod 网络插件支持 RBAC，以及用于部署它的 manifests 也是如此。
+- 默认情况下，`kubeadm` 将集群设置为使用和强制使用
+  [RBAC](/zh-cn/docs/reference/access-authn-authz/rbac/)（基于角色的访问控制）。
+  确保你的 Pod 网络插件支持 RBAC，以及用于部署它的清单也是如此。
 
 <!--
 - If you want to use IPv6--either dual-stack, or single-stack IPv6 only
@@ -476,12 +573,12 @@ Cluster DNS (CoreDNS) will not start up before a network is installed.**
   IPv6 支持已在 CNI [v0.6.0](https://github.com/containernetworking/cni/releases/tag/v0.6.0) 版本中添加。
 {{< /caution >}}
 
+{{< note >}}
 <!--
 Kubeadm should be CNI agnostic and the validation of CNI providers is out of the scope of our current e2e testing.
 If you find an issue related to a CNI plugin you should log a ticket in its respective issue
 tracker instead of the kubeadm or kubernetes issue trackers.
 -->
-{{< note >}}
 kubeadm 应该是与 CNI 无关的，对 CNI 驱动进行验证目前不在我们的端到端测试范畴之内。
 如果你发现与 CNI 插件相关的问题，应在其各自的问题跟踪器中记录而不是在 kubeadm
 或 kubernetes 问题跟踪器中记录。
@@ -519,7 +616,8 @@ Once a Pod network has been installed, you can confirm that it is working by
 checking that the CoreDNS Pod is `Running` in the output of `kubectl get pods --all-namespaces`.
 And once the CoreDNS Pod is up and running, you can continue by joining your nodes.
 -->
-安装 Pod 网络后，你可以通过在 `kubectl get pods --all-namespaces` 输出中检查 CoreDNS Pod 是否 `Running` 来确认其是否正常运行。
+安装 Pod 网络后，你可以通过在 `kubectl get pods --all-namespaces` 输出中检查
+CoreDNS Pod 是否 `Running` 来确认其是否正常运行。
 一旦 CoreDNS Pod 启用并运行，你就可以继续加入节点。
 
 <!--
@@ -527,13 +625,12 @@ If your network is not working or CoreDNS is not in the `Running` state, check o
 [troubleshooting guide](/docs/setup/production-environment/tools/kubeadm/troubleshooting-kubeadm/)
 for `kubeadm`.
 -->
-如果你的网络无法正常工作或 CoreDNS 不在“运行中”状态，请查看 `kubeadm` 的
-[故障排除指南](/zh-cn/docs/setup/production-environment/tools/kubeadm/troubleshooting-kubeadm/)。
+如果你的网络无法正常工作或 CoreDNS 不在 `Running` 状态，请查看 `kubeadm`
+的[故障排除指南](/zh-cn/docs/setup/production-environment/tools/kubeadm/troubleshooting-kubeadm/)。
 
 <!--
 ### Managed node labels
 -->
-
 ### 托管节点标签   {#managed-node-labels}
 
 <!--
@@ -545,7 +642,7 @@ a privileged client after a node has been created. To do that manually you can d
 and ensure it is using a privileged kubeconfig such as the kubeadm managed `/etc/kubernetes/admin.conf`.
 -->
 默认情况下，kubeadm 启用 [NodeRestriction](/zh-cn/docs/reference/access-authn-authz/admission-controllers/#noderestriction)
-准入控制器来限制 kubelets 在节点注册时可以应用哪些标签。准入控制器文档描述 kubelet `--node-labels` 选项允许使用哪些标签。
+准入控制器来限制 kubelet 在节点注册时可以应用哪些标签。准入控制器文档描述 kubelet `--node-labels` 选项允许使用哪些标签。
 其中 `node-role.kubernetes.io/control-plane` 标签就是这样一个受限制的标签，
 kubeadm 在节点创建后使用特权客户端手动应用此标签。
 你可以使用一个有特权的 kubeconfig，比如由 kubeadm 管理的 `/etc/kubernetes/admin.conf`，
@@ -562,40 +659,30 @@ reasons. If you want to be able to schedule Pods on the control plane nodes,
 for example for a single machine Kubernetes cluster, run:
 -->
 默认情况下，出于安全原因，你的集群不会在控制平面节点上调度 Pod。
-如果你希望能够在控制平面节点上调度 Pod，例如单机 Kubernetes 集群，请运行:
+如果你希望能够在控制平面节点上调度 Pod，例如单机 Kubernetes 集群，请运行：
 
 ```bash
-kubectl taint nodes --all node-role.kubernetes.io/control-plane- node-role.kubernetes.io/master-
+kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 ```
+
 <!--
 The output will look something like:
 -->
 输出看起来像：
 
-```console
+```
 node "test-01" untainted
+...
 ```
 
 <!--
-This will remove the `node-role.kubernetes.io/control-plane` and
-`node-role.kubernetes.io/master` taints from any nodes that have them,
-including the control plane nodes, meaning that the scheduler will then be able
-to schedule Pods everywhere.
+This will remove the `node-role.kubernetes.io/control-plane:NoSchedule` taint
+from any nodes that have it, including the control plane nodes, meaning that the
+scheduler will then be able to schedule Pods everywhere.
 -->
-这将从任何拥有 `node-role.kubernetes.io/control-plane` 和
-`node-role.kubernetes.io/master` 污点的节点上移除该污点。
-
-包括控制平面节点，这意味着调度程序将能够在任何地方调度 Pods。
-
-<!--
-{{< note >}}
-The `node-role.kubernetes.io/master` taint is deprecated and kubeadm will stop using it in version 1.25.
-{{< /note >}}
--->
-
-{{< note >}}
-`node-role.kubernetes.io/master` 污点已被废弃，kubeadm 将在 1.25 版本中停止使用它。
-{{< /note >}}
+这将从任何拥有 `node-role.kubernetes.io/control-plane:NoSchedule`
+污点的节点（包括控制平面节点）上移除该污点。
+这意味着调度程序将能够在任何地方调度 Pod。
 
 <!--
 ### Joining your nodes {#join-nodes}
@@ -610,10 +697,13 @@ The nodes are where your workloads (containers and Pods, etc) run. To add new no
 <!--
 * SSH to the machine
 * Become root (e.g. `sudo su -`)
+* [Install a runtime](/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#installing-runtime)
+  if needed
 * Run the command that was output by `kubeadm init`. For example:
 -->
 * SSH 到机器
 * 成为 root （例如 `sudo su -`）
+* 必要时[安装一个运行时](/zh-cn/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#installing-runtime)
 * 运行 `kubeadm init` 输出的命令，例如：
 
   ```bash
@@ -662,7 +752,8 @@ The output is similar to this:
 ```
 
 <!--
-If you don't have the value of `--discovery-token-ca-cert-hash`, you can get it by running the following command chain on the control-plane node:
+If you don't have the value of `--discovery-token-ca-cert-hash`, you can get it by running the
+following command chain on the control-plane node:
 -->
 如果你没有 `--discovery-token-ca-cert-hash` 的值，则可以通过在控制平面节点上执行以下命令链来获取它：
 
@@ -680,11 +771,12 @@ The output is similar to:
 8cb2de97839780a412b93877f8507ad6c94f73add17d5d7058e91741c9d5ec78
 ```
 
-<!--
-To specify an IPv6 tuple for `<control-plane-host>:<control-plane-port>`, IPv6 address must be enclosed in square brackets, for example: `[fd00::101]:2073`.
--->
 {{< note >}}
-要为 `<control-plane-host>:<control-plane-port>` 指定 IPv6 元组，必须将 IPv6 地址括在方括号中，例如：`[fd00::101]:2073`
+<!--
+To specify an IPv6 tuple for `<control-plane-host>:<control-plane-port>`, IPv6 address must be enclosed in square brackets, for example: `[2001:db8::101]:2073`.
+-->
+要为 `<control-plane-host>:<control-plane-port>` 指定 IPv6 元组，必须将 IPv6
+地址括在方括号中，例如：`[2001:db8::101]:2073`
 {{< /note >}}
 
 <!--
@@ -711,15 +803,15 @@ nodes` when run on the control-plane node.
 -->
 几秒钟后，当你在控制平面节点上执行 `kubectl get nodes`，你会注意到该节点出现在输出中。
 
+{{< note >}}
 <!--
 As the cluster nodes are usually initialized sequentially, the CoreDNS Pods are likely to all run
 on the first control-plane node. To provide higher availability, please rebalance the CoreDNS Pods
 with `kubectl -n kube-system rollout restart deployment coredns` after at least one new node is joined.
 -->
-{{< note >}}
-由于集群节点通常是按顺序初始化的，CoreDNS Pods 很可能都运行在第一个控制面节点上。
+由于集群节点通常是按顺序初始化的，CoreDNS Pod 很可能都运行在第一个控制面节点上。
 为了提供更高的可用性，请在加入至少一个新节点后
-使用 `kubectl -n kube-system rollout restart deployment coredns` 命令，重新平衡 CoreDNS Pods。
+使用 `kubectl -n kube-system rollout restart deployment coredns` 命令，重新平衡这些 CoreDNS Pod。
 {{< /note >}}
 
 <!--
@@ -739,6 +831,8 @@ to your workstation like this:
 scp root@<control-plane-host>:/etc/kubernetes/admin.conf .
 kubectl --kubeconfig ./admin.conf get nodes
 ```
+
+{{< note >}}
 <!--
 The example above assumes SSH access is enabled for root. If that is not the
 case, you can copy the `admin.conf` file to be accessible by some other user
@@ -747,18 +841,17 @@ and `scp` using that other user instead.
 The `admin.conf` file gives the user _superuser_ privileges over the cluster.
 This file should be used sparingly. For normal users, it's recommended to
 generate an unique credential to which you grant privileges. You can do
-this with the `kubeadm alpha kubeconfig user --client-name <CN>`
+this with the `kubeadm kubeconfig user --client-name <CN>`
 command. That command will print out a KubeConfig file to STDOUT which you
 should save to a file and distribute to your user. After that, grant
 privileges by using `kubectl create (cluster)rolebinding`.
 -->
-{{< note >}}
 上面的示例假定为 root 用户启用了 SSH 访问。如果不是这种情况，
 你可以使用 `scp` 将 `admin.conf` 文件复制给其他允许访问的用户。
 
 admin.conf 文件为用户提供了对集群的超级用户特权。
 该文件应谨慎使用。对于普通用户，建议生成一个你为其授予特权的唯一证书。
-你可以使用 `kubeadm alpha kubeconfig user --client-name <CN>` 命令执行此操作。
+你可以使用 `kubeadm kubeconfig user --client-name <CN>` 命令执行此操作。
 该命令会将 KubeConfig 文件打印到 STDOUT，你应该将其保存到文件并分发给用户。
 之后，使用 `kubectl create (cluster)rolebinding` 授予特权。
 {{< /note >}}
@@ -778,6 +871,7 @@ If you want to connect to the API Server from outside the cluster you can use
 scp root@<control-plane-host>:/etc/kubernetes/admin.conf .
 kubectl --kubeconfig ./admin.conf proxy
 ```
+
 <!--
 You can now access the API Server locally at `http://localhost:8001/api/v1`
 -->
@@ -794,7 +888,8 @@ switch those off and do no further clean up. You can use
 `kubectl config delete-cluster` to delete your local references to the
 cluster.
 -->
-如果你在集群中使用了一次性服务器进行测试，则可以关闭这些服务器，而无需进一步清理。你可以使用 `kubectl config delete-cluster` 删除对集群的本地引用。
+如果你在集群中使用了一次性服务器进行测试，则可以关闭这些服务器，而无需进一步清理。
+你可以使用 `kubectl config delete-cluster` 删除对集群的本地引用。
 
 <!--
 However, if you want to deprovision your cluster more cleanly, you should
@@ -851,7 +946,7 @@ Now remove the node:
 现在删除节点：
 
 ```bash
-kubectl delete node <node name>
+kubectl delete node <节点名称>
 ```
 
 <!--
@@ -876,7 +971,8 @@ See the [`kubeadm reset`](/docs/reference/setup-tools/kubeadm/kubeadm-reset/)
 reference documentation for more information about this subcommand and its
 options.
 -->
-有关此子命令及其选项的更多信息，请参见 [`kubeadm reset`](/zh-cn/docs/reference/setup-tools/kubeadm/kubeadm-reset/) 参考文档。
+有关此子命令及其选项的更多信息，请参见
+[`kubeadm reset`](/zh-cn/docs/reference/setup-tools/kubeadm/kubeadm-reset/) 参考文档。
 
 <!-- discussion -->
 
@@ -907,9 +1003,8 @@ options.
 * 了解有关 Kubernetes [概念](/zh-cn/docs/concepts/)和 [`kubectl`](/zh-cn/docs/reference/kubectl/)的更多信息。
 * 有关 Pod 网络附加组件的更多列表，请参见[集群网络](/zh-cn/docs/concepts/cluster-administration/networking/)页面。
 * <a id="other-addons" />请参阅[附加组件列表](/zh-cn/docs/concepts/cluster-administration/addons/)以探索其他附加组件，
-  包括用于 Kubernetes 集群的日志记录，监视，网络策略，可视化和控制的工具。
-* 配置集群如何处理集群事件的日志以及
-   在 Pods 中运行的应用程序。
+  包括用于 Kubernetes 集群的日志记录、监视、网络策略、可视化和控制的工具。
+* 配置集群如何处理集群事件的日志以及在 Pod 中运行的应用程序。
   有关所涉及内容的概述，请参见[日志架构](/zh-cn/docs/concepts/cluster-administration/logging/)。
 
 <!--
@@ -930,10 +1025,10 @@ options.
 * 有关漏洞，访问 [kubeadm GitHub issue tracker](https://github.com/kubernetes/kubeadm/issues)
 * 有关支持，访问
   [#kubeadm](https://kubernetes.slack.com/messages/kubeadm/) Slack 频道
-* General SIG 集群生命周期开发 Slack 频道:
+* General SIG 集群生命周期开发 Slack 频道：
   [#sig-cluster-lifecycle](https://kubernetes.slack.com/messages/sig-cluster-lifecycle/)
 * SIG 集群生命周期 [SIG information](https://github.com/kubernetes/community/tree/master/sig-cluster-lifecycle#readme)
-* SIG 集群生命周期邮件列表:
+* SIG 集群生命周期邮件列表：
   [kubernetes-sig-cluster-lifecycle](https://groups.google.com/forum/#!forum/kubernetes-sig-cluster-lifecycle)
 
 <!--
@@ -951,7 +1046,6 @@ match the kubeadm version with the versions of the control plane components, kub
 <!--
 ### kubeadm's skew against the Kubernetes version
 -->
-
 ### kubeadm 中的 Kubernetes 版本偏差 {#kubeadm-s-skew-against-the-kubernetes-version}
 
 <!--
@@ -964,7 +1058,7 @@ of kube-apiserver, kube-controller-manager, kube-scheduler and kube-proxy.
 -->
 kubeadm 可以与 Kubernetes 组件一起使用，这些组件的版本与 kubeadm 相同，或者比它大一个版本。
 Kubernetes 版本可以通过使用 `--kubeadm init` 的 `--kubernetes-version` 标志或使用 `--config` 时的
-[`ClusterConfiguration.kubernetesVersion`](/zh-cn/docs/reference/configapi/kubeadm-config.v1beta3/)
+[`ClusterConfiguration.kubernetesVersion`](/zh-cn/docs/reference/config-api/kubeadm-config.v1beta3/)
 字段指定给 kubeadm。
 这个选项将控制 kube-apiserver、kube-controller-manager、kube-scheduler 和 kube-proxy 的版本。
 
@@ -1045,16 +1139,16 @@ Example for `kubeadm upgrade`:
 * The version of kubeadm used for upgrading the node must be at {{< skew currentVersionAddMinor -1 >}}
 or {{< skew currentVersion >}}
 -->
-`kubeadm upgrade` 的例子:
+`kubeadm upgrade` 的例子：
 * 用于创建或升级节点的 kubeadm 版本为 {{< skew currentVersionAddMinor -1 >}}。
 * 用于升级节点的 kubeadm 版本必须为 {{< skew currentVersionAddMinor -1 >}} 或 {{< skew currentVersion >}}。
 
 <!--
 To learn more about the version skew between the different Kubernetes component see
-the [Version Skew Policy](https://kubernetes.io/releases/version-skew-policy/).
+the [Version Skew Policy](/releases/version-skew-policy/).
 -->
-要了解更多关于不同 Kubernetes 组件之间的版本偏差，请参见
-[版本偏差策略](/zh-cn/releases/version-skew-policy/)。
+要了解更多关于不同 Kubernetes 组件之间的版本偏差，
+请参见[版本偏差策略](/zh-cn/releases/version-skew-policy/)。
 
 <!--
 ## Limitations {#limitations}
@@ -1079,10 +1173,10 @@ Workarounds:
 解决方法：
 
 <!--
-* Regularly [back up etcd](https://coreos.com/etcd/docs/latest/admin_guide.html). The
+* Regularly [back up etcd](https://etcd.io/docs/v3.5/op-guide/recovery/). The
   etcd data directory configured by kubeadm is at `/var/lib/etcd` on the control-plane node.
 -->
-* 定期[备份 etcd](https://coreos.com/etcd/docs/latest/admin_guide.html)。
+* 定期[备份 etcd](https://etcd.io/docs/v3.5/op-guide/recovery/)。
   kubeadm 配置的 etcd 数据目录位于控制平面节点上的 `/var/lib/etcd` 中。
 
 <!--
@@ -1126,7 +1220,8 @@ supports your chosen platform.
 ## 故障排除 {#troubleshooting}
 
 <!--
-If you are running into difficulties with kubeadm, please consult our [troubleshooting docs](/docs/setup/production-environment/tools/kubeadm/troubleshooting-kubeadm/).
+If you are running into difficulties with kubeadm, please consult our
+[troubleshooting docs](/docs/setup/production-environment/tools/kubeadm/troubleshooting-kubeadm/).
 -->
 如果你在使用 kubeadm 时遇到困难，
 请查阅我们的[故障排除文档](/zh-cn/docs/setup/production-environment/tools/kubeadm/troubleshooting-kubeadm/)。

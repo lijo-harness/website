@@ -4,12 +4,13 @@ abstract: "自动化的容器部署、扩展和管理"
 cid: home
 ---
 
+{{< site-searchbar >}}
 
 {{< blocks/section id="oceanNodes" >}}
 {{% blocks/feature image="flower" %}}
 
-<!-- ### [Kubernetes]({{< relref "/docs/concepts/overview/what-is-kubernetes" >}}) is an open-source system for automating deployment, scaling, and management of containerized applications. -->
-### [Kubernetes]({{< relref "/docs/concepts/overview/what-is-kubernetes" >}}) 是用于自动部署，扩展和管理容器化应用程序的开源系统。
+<!-- [Kubernetes]({{< relref "/docs/concepts/overview/" >}}), also known as K8s, is an open-source system for automating deployment, scaling, and management of containerized applications. -->
+[Kubernetes]({{< relref "/docs/concepts/overview/" >}}) 也称为 K8s，是用于自动部署、扩缩和管理容器化应用程序的开源系统。
 
 <!-- It groups containers that make up an application into logical units for easy management and discovery.
 Kubernetes builds upon [15 years of experience of running production workloads at Google](http://queue.acm.org/detail.cfm?id=2898444),
@@ -24,8 +25,7 @@ combined with best-of-breed ideas and practices from the community. -->
 <!-- #### Planet Scale -->
 #### 星际尺度
 
-<!-- Designed on the same principles that allows Google to run billions of containers a week,
-Kubernetes can scale without increasing your ops team. -->
+<!-- Designed on the same principles that allow Google to run billions of containers a week, Kubernetes can scale without increasing your operations team. -->
 
 Google 每周运行数十亿个容器，Kubernetes 基于与之相同的原则来设计，能够在不扩张运维团队的情况下进行规模扩展。
 
@@ -34,7 +34,7 @@ Google 每周运行数十亿个容器，Kubernetes 基于与之相同的原则�
 {{% blocks/feature image="blocks" %}}
 
 <!-- #### Never Outgrow -->
-#### 处处适用
+#### 永不过时
 
 <!-- Whether testing locally or running a global enterprise, Kubernetes flexibility grows with you to deliver your applications
 consistently and easily no matter how complex your need is. -->
@@ -45,13 +45,16 @@ consistently and easily no matter how complex your need is. -->
 
 {{% blocks/feature image="suitcase" %}}
 
-<!-- #### Run Anywhere -->
-#### 永不过时
+<!-- #### Run K8s Anywhere -->
+#### 处处适用
 
-<!-- Kubernetes is open source giving you the freedom to take advantage of on-premises, hybrid,
-or public cloud infrastructure, letting you effortlessly move workloads to where it matters to you. -->
+<!-- Kubernetes is open source giving you the freedom to take advantage of on-premises, 
+hybrid, or public cloud infrastructure, letting you effortlessly move workloads to where it matters to you.
+To download Kubernetes, visit the [download](/releases/download/) section. -->
 
 Kubernetes 是开源系统，可以自由地部署在企业内部，私有云、混合云或公有云，让您轻松地做出合适的选择。
+
+请访问[下载](/releases/download/)部分下载 Kubernetes。
 
 {{% /blocks/feature %}}
 
@@ -60,21 +63,21 @@ Kubernetes 是开源系统，可以自由地部署在企业内部，私有云、
 {{< blocks/section id="video" background-image="kub_video_banner_homepage" >}}
 
 <div class="light-text">
-    <!-- <h2>The Challenges of Migrating 150+ Microservices to Kubernetes</h2> -->
-    <h2>将 150+ 微服务迁移到 Kubernetes 上的挑战</h2>
-    <!-- <p>By Sarah Wells, Technical Director for Operations and Reliability, Financial Times</p> -->
-    <p>Sarah Wells, 运营和可靠性技术总监, 金融时报</p>
-    <button id="desktopShowVideoButton" onclick="kub.showVideo()">Watch Video</button>
-    <br>
-    <br>
-    <!-- <a href="https://www.lfasiallc.com/events/kubecon-cloudnativecon-china-2018/" button id="desktopKCButton">Attend KubeCon in Shanghai on Nov. 13-15, 2018</a> -->
-    <a href="https://www.lfasiallc.com/events/kubecon-cloudnativecon-china-2018/" button id="desktopKCButton">参加11月13日到15日的上海 KubeCon</a>
-    <br>
-    <br>
-    <br>
-    <br>
-    <!-- <a href="https://events.linuxfoundation.org/events/kubecon-cloudnativecon-north-america-2018/" button id="desktopKCButton">Attend KubeCon in Seattle on Dec. 11-13, 2018</a> -->
-    <a href="https://events.linuxfoundation.org/events/kubecon-cloudnativecon-north-america-2018/" button id="desktopKCButton">参加12月11日到13日的西雅图 KubeCon</a>
+<!-- <h2>The Challenges of Migrating 150+ Microservices to Kubernetes</h2> -->
+<h2>将 150+ 微服务迁移到 Kubernetes 上的挑战</h2>
+        <!-- <p>By Sarah Wells, Technical Director for Operations and Reliability, Financial Times</p> -->
+        <p>Sarah Wells, 运营和可靠性技术总监, 金融时报</p>
+        <button id="desktopShowVideoButton" onclick="kub.showVideo()">观看视频</button>
+        <br>
+        <br>
+        <!-- <a href="https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/" button id="desktopKCButton">Attend KubeCon + CloudNativeCon North America on November 6-9, 2023</a> -->
+        <a href="https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/" button id="desktopKCButton">参加 2023 年 11 月 6-9 日的北美 KubeCon + CloudNativeCon</a>
+        <br>
+        <br>
+        <br>
+        <br>
+        <!-- <a href="https://events.linuxfoundation.org/kubecon-cloudnativecon-europe/" button id="desktopKCButton">Attend KubeCon + CloudNativeCon Europe on March 19-22, 2024</a> -->
+        <a href="https://events.linuxfoundation.org/kubecon-cloudnativecon-europe/" button id="desktopKCButton">参加 2024 年 3 月 19-22 日的欧洲 KubeCon + CloudNativeCon</a>
 </div>
 <div id="videoPlayer">
     <iframe data-url="https://www.youtube.com/embed/H06qrNmGqyE?autoplay=1" frameborder="0" allowfullscreen></iframe>

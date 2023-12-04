@@ -1,6 +1,7 @@
 ---
 title: Upgrade A Cluster
 content_type: task
+weight: 350
 ---
 
 <!-- overview -->
@@ -58,6 +59,11 @@ For each node in your cluster, [drain](/docs/tasks/administer-cluster/safely-dra
 that node and then either replace it with a new node that uses the {{< skew currentVersion >}}
 kubelet, or upgrade the kubelet on that node and bring the node back into service.
 
+{{< caution >}}
+Draining nodes before upgrading kubelet ensures that pods are re-admitted and containers are
+re-created, which may be necessary to resolve some security issues or other important bugs.
+{{</ caution >}}
+
 ### Other deployments {#upgrade-other}
 
 Refer to the documentation for your cluster deployment tool to learn the recommended set
@@ -91,3 +97,12 @@ kubectl convert -f pod.yaml --output-version v1
 
 The `kubectl` tool replaces the contents of `pod.yaml` with a manifest that sets `kind` to
 Pod (unchanged), but with a revised `apiVersion`.
+
+### Device Plugins
+
+If your cluster is running device plugins and the node needs to be upgraded to a Kubernetes
+release with a newer device plugin API version, device plugins must be upgraded to support
+both version before the node is upgraded in order to guarantee that device allocations
+continue to complete successfully during the upgrade.
+
+Refer to [API compatibility](/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/#api-compatibility) and [Kubelet Device Manager API Versions](/docs/reference/node/device-plugin-api-versions/) for more details.

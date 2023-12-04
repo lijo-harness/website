@@ -1,15 +1,16 @@
 ---
 title: 保护集群
 content_type: task
+weight: 320
 ---
 <!--
 reviewers:
 - smarterclayton
 - liggitt
-- ericchiang
-- destijl
+- enj
 title: Securing a Cluster
 content_type: task
+weight: 320
 -->
 
 <!-- overview -->
@@ -46,7 +47,7 @@ the cluster components. Note that some components and installation methods may e
 HTTP and administrators should familiarize themselves with the settings of each component to identify
 potentially unsecured traffic.
 -->
-### 为所有 API 交互使用传输层安全 （TLS）
+### 为所有 API 交互使用传输层安全（TLS）
 
 Kubernetes 期望集群中所有的 API 通信在默认情况下都使用 TLS 加密，
 大多数安装方法也允许创建所需的证书并且分发到集群组件中。
@@ -224,6 +225,55 @@ or **Restricted** Pod Security Standard.
 类似地，希望阻止客户端应用程序从其容器中逃逸的管理员，应该应用 **Baseline**
 或 **Restricted** Pod 安全标准。
 
+
+<!--
+### Preventing containers from loading unwanted kernel modules
+-->
+### 防止容器加载不需要的内核模块   {#preventing-containers-from-loading-unwanted-kernel-modules}
+<!--
+The Linux kernel automatically loads kernel modules from disk if needed in certain
+circumstances, such as when a piece of hardware is attached or a filesystem is mounted. Of
+particular relevance to Kubernetes, even unprivileged processes can cause certain
+network-protocol-related kernel modules to be loaded, just by creating a socket of the
+appropriate type. This may allow an attacker to exploit a security hole in a kernel module
+that the administrator assumed was not in use.
+-->
+如果在某些情况下，Linux 内核会根据需要自动从磁盘加载内核模块，
+这类情况的例子有挂接了一个硬件或挂载了一个文件系统。
+与 Kubernetes 特别相关的是，即使是非特权的进程也可能导致某些网络协议相关的内核模块被加载，
+而这只需创建一个适当类型的套接字。
+这就可能允许攻击者利用管理员假定未使用的内核模块中的安全漏洞。
+
+<!--
+To prevent specific modules from being automatically loaded, you can uninstall them from
+the node, or add rules to block them. On most Linux distributions, you can do that by
+creating a file such as `/etc/modprobe.d/kubernetes-blacklist.conf` with contents like:
+-->
+为了防止特定模块被自动加载，你可以将它们从节点上卸载或者添加规则来阻止这些模块。
+在大多数 Linux 发行版上，你可以通过创建类似 `/etc/modprobe.d/kubernetes-blacklist.conf`
+这种文件来做到这一点，其中的内容如下所示：
+
+```
+# DCCP is unlikely to be needed, has had multiple serious
+# vulnerabilities, and is not well-maintained.
+blacklist dccp
+
+# SCTP is not used in most Kubernetes clusters, and has also had
+# vulnerabilities in the past.
+blacklist sctp
+```
+
+<!--
+To block module loading more generically, you can use a Linux Security Module (such as
+SELinux) to completely deny the `module_request` permission to containers, preventing the
+kernel from loading modules for containers under any circumstances. (Pods would still be
+able to use modules that had been loaded manually, or modules that were loaded by the
+kernel on behalf of some more-privileged process.)
+-->
+为了更大范围地阻止内核模块被加载，你可以使用 Linux 安全模块（如 SELinux）
+来彻底拒绝容器的 `module_request` 权限，从而防止在任何情况下系统为容器加载内核模块。
+（Pod 仍然可以使用手动加载的模块，或者使用由内核代表某些特权进程所加载的模块。）
+
 <!--
 ### Restricting network access
 
@@ -363,10 +413,10 @@ that result in security vulnerabilities. Always assess the value an alpha or bet
 provide against the possible risk to your security posture. When in doubt, disable features you
 do not use.
 -->
-### 限制使用 alpha 和 beta 特性
+### 限制使用 Alpha 和 Beta 特性
 
-Kubernetes 的 alpha 和 beta 特性还在努力开发中，可能存在导致安全漏洞的缺陷或错误。
-要始终评估 alpha 和 beta 特性可能给你的安全态势带来的风险。
+Kubernetes 的 Alpha 和 Beta 特性还在努力开发中，可能存在导致安全漏洞的缺陷或错误。
+要始终评估 Alpha 和 Beta 特性可能给你的安全态势带来的风险。
 当你怀疑存在风险时，可以禁用那些不需要使用的特性。
 
 <!--
@@ -441,11 +491,14 @@ and may grant an attacker significant visibility into the state of your cluster.
 your backups using a well reviewed backup and encryption solution, and consider using full disk
 encryption where possible.
 
-Kubernetes supports [encryption at rest](/docs/tasks/administer-cluster/encrypt-data/), a feature 
-introduced in 1.7, and beta since 1.13. This will encrypt `Secret` resources in etcd, preventing
-parties that gain access to your etcd backups from viewing the content of those secrets. While
-this feature is currently beta, it offers an additional level of defense when backups
-are not encrypted or an attacker gains read access to etcd.
+Kubernetes supports optional [encryption at rest](/docs/tasks/administer-cluster/encrypt-data/) for information in the Kubernetes API.
+This lets you ensure that when Kubernetes stores data for objects (for example, `Secret` or
+`ConfigMap` objects), the API server writes an encrypted representation of the object.
+That encryption means that even someone who has access to etcd backup data is unable
+to view the content of those objects.
+In Kubernetes {{< skew currentVersion >}} you can also encrypt custom resources;
+encryption-at-rest for extension APIs defined in CustomResourceDefinitions was added to
+Kubernetes as part of the v1.26 release.
 -->
 ### 对 Secret 进行静态加密
 
@@ -454,11 +507,12 @@ are not encrypted or an attacker gains read access to etcd.
 你要始终使用经过充分审查的备份和加密方案来加密备份数据，
 并考虑在可能的情况下使用全盘加密。
 
-Kubernetes 支持[静态数据加密](/zh-cn/docs/tasks/administer-cluster/encrypt-data/)。
-该功能在 1.7 版本引入，并在 1.13 版本成为 Beta。
-它会加密 etcd 里面的 `Secret` 资源，以防止某一方通过查看 etcd 的备份文件查看到这些
-Secret 的内容。虽然目前该功能还只是 Beta 阶段，
-在备份未被加密或者攻击者获取到 etcd 的读访问权限时，它仍能提供额外的防御层级。
+对于 Kubernetes API 中的信息，Kubernetes 支持可选的[静态数据加密](/zh-cn/docs/tasks/administer-cluster/encrypt-data/)。
+这让你可以确保当 Kubernetes 存储对象（例如 `Secret` 或 `ConfigMap`）的数据时，API 服务器写入的是加密的对象。
+这种加密意味着即使有权访问 etcd 备份数据的某些人也无法查看这些对象的内容。
+在 Kubernetes {{< skew currentVersion >}} 中，你也可以加密自定义资源；
+针对以 CustomResourceDefinition 形式定义的扩展 API，对其执行静态加密的能力作为 v1.26
+版本的一部分已添加到 Kubernetes。
 
 <!--
 ### Receiving alerts for security updates and reporting vulnerabilities
@@ -473,4 +527,14 @@ page for more on how to report vulnerabilities.
 请加入 [kubernetes-announce](https://groups.google.com/forum/#!forum/kubernetes-announce)
 组，这样你就能够收到有关安全公告的邮件。有关如何报告漏洞的更多信息，
 请参见[安全报告](/zh-cn/docs/reference/issues-security/security/)页面。
+
+<!--
+## What's next
+
+- [Security Checklist](/docs/concepts/security/security-checklist/) for additional information on Kubernetes security guidance.
+-->
+## {{% heading "whatsnext" %}}
+
+- 阅读[安全检查清单](/zh-cn/docs/concepts/security/security-checklist/)了解有关
+  Kubernetes 安全指南的更多信息。
 

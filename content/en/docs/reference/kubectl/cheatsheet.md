@@ -7,14 +7,17 @@ reviewers:
 content_type: concept
 weight: 10 # highlight it
 card:
-  name: reference
-  weight: 30
+  name: tasks
+  weight: 10
 ---
 
 <!-- overview -->
 
 This page contains a list of commonly used `kubectl` commands and flags.
 
+{{< note >}}
+These instructions are for Kubernetes v{{< skew currentVersion >}}. To check the version, use the `kubectl version` command.
+{{< /note >}}
 <!-- body -->
 
 ## Kubectl autocomplete
@@ -22,7 +25,7 @@ This page contains a list of commonly used `kubectl` commands and flags.
 ### BASH
 
 ```bash
-source <(kubectl completion bash) # setup autocomplete in bash into the current shell, bash-completion package should be installed first.
+source <(kubectl completion bash) # set up autocomplete in bash into the current shell, bash-completion package should be installed first.
 echo "source <(kubectl completion bash)" >> ~/.bashrc # add autocomplete permanently to your bash shell.
 ```
 
@@ -36,12 +39,21 @@ complete -o default -F __start_kubectl k
 ### ZSH
 
 ```bash
-source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
+source <(kubectl completion zsh)  # set up autocomplete in zsh into the current shell
 echo '[[ $commands[kubectl] ]] && source <(kubectl completion zsh)' >> ~/.zshrc # add autocomplete permanently to your zsh shell
 ```
-### A Note on --all-namespaces
 
-Appending `--all-namespaces` happens frequently enough where you should be aware of the  shorthand for `--all-namespaces`:
+### FISH
+
+Require kubectl version 1.23 or above.
+
+```bash
+echo 'kubectl completion fish | source' >> ~/.config/fish/config.fish  # add kubectl autocompletion permanently to your fish shell 
+```
+
+### A note on `--all-namespaces`
+
+Appending `--all-namespaces` happens frequently enough that you should be aware of the shorthand for `--all-namespaces`:
 
 ```kubectl -A```
 
@@ -68,6 +80,11 @@ kubectl config get-contexts                          # display list of contexts
 kubectl config current-context                       # display the current-context
 kubectl config use-context my-cluster-name           # set the default context to my-cluster-name
 
+kubectl config set-cluster my-cluster-name           # set a cluster entry in the kubeconfig
+
+# configure the URL to a proxy server to use for requests made by this client in the kubeconfig
+kubectl config set-cluster my-cluster-name --proxy-url=my-proxy-url
+
 # add a new user to your kubeconf that supports basic auth
 kubectl config set-credentials kubeuser/foo.kubernetes.com --username=kubeuser --password=kubepassword
 
@@ -80,7 +97,7 @@ kubectl config set-context gce --user=cluster-admin --namespace=foo \
 
 kubectl config unset users.foo                       # delete user foo
 
-# short alias to set/show context/namespace (only works for bash and bash-compatible shells, current context to be set before using kn to set namespace) 
+# short alias to set/show context/namespace (only works for bash and bash-compatible shells, current context to be set before using kn to set namespace)
 alias kx='f() { [ "$1" ] && kubectl config use-context $1 || kubectl config current-context ; } ; f'
 alias kn='f() { [ "$1" ] && kubectl config set-context --current --namespace $1 || kubectl config view --minify | grep namespace | cut -d" " -f6 ; } ; f'
 ```
@@ -110,7 +127,7 @@ kubectl create cronjob hello --image=busybox:1.28   --schedule="*/1 * * * *" -- 
 kubectl explain pods                           # get the documentation for pod manifests
 
 # Create multiple YAML objects from stdin
-cat <<EOF | kubectl apply -f -
+kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Pod
 metadata:
@@ -137,7 +154,7 @@ spec:
 EOF
 
 # Create a secret with several keys
-cat <<EOF | kubectl apply -f -
+kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
@@ -150,7 +167,7 @@ EOF
 
 ```
 
-## Viewing, finding resources
+## Viewing and finding resources
 
 ```bash
 # Get commands with basic output
@@ -182,6 +199,9 @@ kubectl get pods --selector=app=cassandra -o \
 kubectl get configmap myconfig \
   -o jsonpath='{.data.ca\.crt}'
 
+# Retrieve a base64 encoded value with dashes instead of underscores.
+kubectl get secret my-secret --template='{{index .data "key-name-with-dashes"}}'
+
 # Get all worker nodes (use a selector to exclude results that have a label
 # named 'node-role.kubernetes.io/control-plane')
 kubectl get node --selector='!node-role.kubernetes.io/control-plane'
@@ -193,7 +213,7 @@ kubectl get pods --field-selector=status.phase=Running
 kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}'
 
 # List Names of Pods that belong to Particular RC
-# "jq" command useful for transformations that are too complex for jsonpath, it can be found at https://stedolan.github.io/jq/
+# "jq" command useful for transformations that are too complex for jsonpath, it can be found at https://jqlang.github.io/jq/
 sel=${$(kubectl get rc my-rc --output=json | jq -j '.spec.selector | to_entries | .[] | "\(.key)=\(.value),"')%?}
 echo $(kubectl get pods --selector=$sel --output=jsonpath={.items..metadata.name})
 
@@ -203,6 +223,9 @@ kubectl get pods --show-labels
 # Check which nodes are ready
 JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}' \
  && kubectl get nodes -o jsonpath="$JSONPATH" | grep "Ready=True"
+
+# Check which nodes are ready with custom-columns
+kubectl get node -o custom-columns='NODE_NAME:.metadata.name,STATUS:.status.conditions[?(@.type=="Ready")].status'
 
 # Output decoded secrets without external tools
 kubectl get secret my-secret -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}'
@@ -216,6 +239,9 @@ kubectl get pods --all-namespaces -o jsonpath='{range .items[*].status.initConta
 
 # List Events sorted by timestamp
 kubectl get events --sort-by=.metadata.creationTimestamp
+
+# List all warning events
+kubectl events --types=Warning
 
 # Compares the current state of the cluster against the state that the cluster would be in if the manifest was applied.
 kubectl diff -f ./my-manifest.yaml
@@ -258,7 +284,10 @@ kubectl expose rc nginx --port=80 --target-port=8000
 kubectl get pod mypod -o yaml | sed 's/\(image: myimage\):.*$/\1:v4/' | kubectl replace -f -
 
 kubectl label pods my-pod new-label=awesome                      # Add a Label
+kubectl label pods my-pod new-label-                             # Remove a label
+kubectl label pods my-pod new-label=new-value --overwrite        # Overwrite an existing value
 kubectl annotate pods my-pod icon-url=http://goo.gl/XXBTWq       # Add an annotation
+kubectl annotate pods my-pod icon-                               # Remove annotation
 kubectl autoscale deployment foo --min=2 --max=10                # Auto scale a deployment "foo"
 ```
 
@@ -328,9 +357,8 @@ kubectl logs -f my-pod -c my-container              # stream pod container logs 
 kubectl logs -f -l name=myLabel --all-containers    # stream all pods logs with label name=myLabel (stdout)
 kubectl run -i --tty busybox --image=busybox:1.28 -- sh  # Run pod as interactive shell
 kubectl run nginx --image=nginx -n mynamespace      # Start a single instance of nginx pod in the namespace of mynamespace
-kubectl run nginx --image=nginx                     # Run pod nginx and write its spec into a file called pod.yaml
---dry-run=client -o yaml > pod.yaml
-
+kubectl run nginx --image=nginx --dry-run=client -o yaml > pod.yaml
+                                                    # Generate spec for running pod nginx and write it into a file called pod.yaml
 kubectl attach my-pod -i                            # Attach to Running Container
 kubectl port-forward my-pod 5000:6000               # Listen on port 5000 on the local machine and forward to port 6000 on my-pod
 kubectl exec my-pod -- ls /                         # Run command in existing pod (1 container case)
@@ -339,7 +367,7 @@ kubectl exec my-pod -c my-container -- ls /         # Run command in existing po
 kubectl top pod POD_NAME --containers               # Show metrics for a given pod and its containers
 kubectl top pod POD_NAME --sort-by=cpu              # Show metrics for a given pod and sort it by 'cpu' or 'memory'
 ```
-## Copy files and directories to and from containers
+## Copying files and directories to and from containers
 
 ```bash
 kubectl cp /tmp/foo_dir my-pod:/tmp/bar_dir            # Copy /tmp/foo_dir local directory to /tmp/bar_dir in a remote pod in the current namespace
@@ -348,7 +376,7 @@ kubectl cp /tmp/foo my-namespace/my-pod:/tmp/bar       # Copy /tmp/foo local fil
 kubectl cp my-namespace/my-pod:/tmp/foo /tmp/bar       # Copy /tmp/foo from a remote pod to /tmp/bar locally
 ```
 {{< note >}}
-`kubectl cp` requires that the 'tar' binary is present in your container image. If 'tar' is not present,`kubectl cp` will fail.
+`kubectl cp` requires that the 'tar' binary is present in your container image. If 'tar' is not present, `kubectl cp` will fail.
 For advanced use cases, such as symlinks, wildcard expansion or file mode preservation consider using `kubectl exec`.
 {{< /note >}}
 
@@ -381,13 +409,16 @@ kubectl cluster-info                                                  # Display 
 kubectl cluster-info dump                                             # Dump current cluster state to stdout
 kubectl cluster-info dump --output-directory=/path/to/cluster-state   # Dump current cluster state to /path/to/cluster-state
 
+# View existing taints on which exist on current nodes.
+kubectl get nodes -o='custom-columns=NodeName:.metadata.name,TaintKey:.spec.taints[*].key,TaintValue:.spec.taints[*].value,TaintEffect:.spec.taints[*].effect'
+
 # If a taint with that key and effect already exists, its value is replaced as specified.
 kubectl taint nodes foo dedicated=special-user:NoSchedule
 ```
 
 ### Resource types
 
-List all supported resource types along with their shortnames, [API group](/docs/concepts/overview/kubernetes-api/#api-groups-and-versioning), whether they are [namespaced](/docs/concepts/overview/working-with-objects/namespaces), and [Kind](/docs/concepts/overview/working-with-objects/kubernetes-objects):
+List all supported resource types along with their shortnames, [API group](/docs/concepts/overview/kubernetes-api/#api-groups-and-versioning), whether they are [namespaced](/docs/concepts/overview/working-with-objects/namespaces), and [kind](/docs/concepts/overview/working-with-objects/):
 
 ```bash
 kubectl api-resources
@@ -412,6 +443,8 @@ Output format | Description
 --------------| -----------
 `-o=custom-columns=<spec>` | Print a table using a comma separated list of custom columns
 `-o=custom-columns-file=<filename>` | Print a table using the custom columns template in the `<filename>` file
+`-o=go-template=<template>`     | Print the fields defined in a [golang template](https://pkg.go.dev/text/template)
+`-o=go-template-file=<filename>` | Print the fields defined by the [golang template](https://pkg.go.dev/text/template) in the `<filename>` file
 `-o=json`     | Output a JSON formatted API object
 `-o=jsonpath=<template>` | Print the fields defined in a [jsonpath](/docs/reference/kubectl/jsonpath) expression
 `-o=jsonpath-file=<filename>` | Print the fields defined by the [jsonpath](/docs/reference/kubectl/jsonpath) expression in the `<filename>` file
@@ -428,8 +461,8 @@ kubectl get pods -A -o=custom-columns='DATA:spec.containers[*].image'
 # All images running in namespace: default, grouped by Pod
 kubectl get pods --namespace default --output=custom-columns="NAME:.metadata.name,IMAGE:.spec.containers[*].image"
 
- # All images excluding "k8s.gcr.io/coredns:1.6.2"
-kubectl get pods -A -o=custom-columns='DATA:spec.containers[?(@.image!="k8s.gcr.io/coredns:1.6.2")].image'
+ # All images excluding "registry.k8s.io/coredns:1.6.2"
+kubectl get pods -A -o=custom-columns='DATA:spec.containers[?(@.image!="registry.k8s.io/coredns:1.6.2")].image'
 
 # All fields under metadata regardless of name
 kubectl get pods -A -o=custom-columns='DATA:metadata.*'

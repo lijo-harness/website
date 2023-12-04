@@ -1,14 +1,14 @@
 ---
 title: 重新配置 kubeadm 集群
 content_type: task
-weight: 10
+weight: 30
 ---
 <!--
 reviewers:
 - sig-cluster-lifecycle
 title: Reconfiguring a kubeadm cluster
 content_type: task
-weight: 10
+weight: 30
 -->
 
 <!-- overview -->
@@ -107,7 +107,6 @@ in a ConfigMap called `kubeadm-config` in the `kube-system` namespace.
 
 To change a particular option in the `ClusterConfiguration` you can edit the ConfigMap with this command:
 
-The configuration is located under the `data.ClusterConfiguration` key.
 -->
 ### 应用集群配置更改
 
@@ -123,6 +122,9 @@ The configuration is located under the `data.ClusterConfiguration` key.
 kubectl edit cm -n kube-system kubeadm-config
 ```
 
+<!--
+The configuration is located under the `data.ClusterConfiguration` key.
+-->
 配置位于 `data.ClusterConfiguration` 键下。
 
 {{< note >}}
@@ -170,7 +172,6 @@ Before proceeding with these changes, make sure you have backed up the directory
 <!--
 To write new certificates you can use:
 
-To write new manifest files in `/etc/kubernetes/manifests` you can use:
 -->
 
 要编写新证书，你可以使用：
@@ -179,6 +180,9 @@ To write new manifest files in `/etc/kubernetes/manifests` you can use:
 kubeadm init phase certs <component-name> --config <config-file>
 ```
 
+<!--
+To write new manifest files in `/etc/kubernetes/manifests` you can use:
+-->
 要在 `/etc/kubernetes/manifests` 中编写新的清单文件，你可以使用：
 
 ```shell
@@ -212,7 +216,6 @@ in a ConfigMap called `kubelet-config` in the `kube-system` namespace.
 
 You can edit the ConfigMap with this command:
 
-The configuration is located under the `data.kubelet` key.
 -->
 ### 应用 kubelet 配置更改
 
@@ -227,6 +230,9 @@ The configuration is located under the `data.kubelet` key.
 kubectl edit cm -n kube-system kubelet-config
 ```
 
+<!--
+The configuration is located under the `data.kubelet` key.
+-->
 配置位于 `data.kubelet` 键下。
 
 <!--
@@ -235,7 +241,7 @@ kubectl edit cm -n kube-system kubelet-config
 To reflect the change on kubeadm nodes you must do the following:
 - Log in to a kubeadm node
 - Run `kubeadm upgrade node phase kubelet-config` to download the latest `kubelet-config`
-ConfigMap contents into the local file `/var/lib/kubelet/config.conf`
+ConfigMap contents into the local file `/var/lib/kubelet/config.yaml`
 - Edit the file `/var/lib/kubelet/kubeadm-flags.env` to apply additional configuration with
 flags
 - Restart the kubelet service with `systemctl restart kubelet`
@@ -246,7 +252,7 @@ flags
 
 - 登录到 kubeadm 节点
 - 运行 `kubeadm upgrade node phase kubelet-config` 下载最新的
-  `kubelet-config` ConfigMap 内容到本地文件 `/var/lib/kubelet/config.conf`
+  `kubelet-config` ConfigMap 内容到本地文件 `/var/lib/kubelet/config.yaml`
 - 编辑文件 `/var/lib/kubelet/kubeadm-flags.env` 以使用标志来应用额外的配置
 - 使用 `systemctl restart kubelet` 重启 kubelet 服务
 
@@ -260,15 +266,16 @@ Do these changes one node at a time to allow workloads to be rescheduled properl
 {{< note >}}
 <!--
 During `kubeadm upgrade`, kubeadm downloads the `KubeletConfiguration` from the
-`kubelet-config` ConfigMap and overwrite the contents of `/var/lib/kubelet/config.conf`.
+`kubelet-config` ConfigMap and overwrite the contents of `/var/lib/kubelet/config.yaml`.
 This means that node local configuration must be applied either by flags in
 `/var/lib/kubelet/kubeadm-flags.env` or by manually updating the contents of
-`/var/lib/kubelet/config.conf` after `kubeadm upgrade`, and then restarting the kubelet.
+`/var/lib/kubelet/config.yaml` after `kubeadm upgrade`, and then restarting the kubelet.
 -->
 在 `kubeadm upgrade` 期间，kubeadm 从 `kubelet-config` ConfigMap
-下载 `KubeletConfiguration` 并覆盖 `/var/lib/kubelet/config.conf` 的内容。
+下载 `KubeletConfiguration` 并覆盖 `/var/lib/kubelet/config.yaml` 的内容。
 这意味着节点本地配置必须通过`/var/lib/kubelet/kubeadm-flags.env`中的标志或在
-kubeadm upgrade` 后手动更新`/var/lib/kubelet/config.conf`的内容来应用，然后重新启动 kubelet。
+kubeadm upgrade` 后手动更新 `/var/lib/kubelet/config.yaml` 的内容来应用，
+然后重新启动 kubelet。
 {{< /note >}}
 
 <!--
@@ -284,7 +291,6 @@ This ConfigMap is used by the `kube-proxy` DaemonSet in the `kube-system` namesp
 
 To change a particular option in the `KubeProxyConfiguration`, you can edit the ConfigMap with this command:
 
-The configuration is located under the `data.config.conf` key.
 -->
 ### 应用 kube-proxy 配置更改
 
@@ -302,6 +308,9 @@ The configuration is located under the `data.config.conf` key.
 kubectl edit cm -n kube-system kube-proxy
 ```
 
+<!--
+The configuration is located under the `data.config.conf` key.
+-->
 配置位于 `data.config.conf` 键下。
 
 <!--
@@ -311,9 +320,6 @@ Once the `kube-proxy` ConfigMap is updated, you can restart all kube-proxy Pods:
 
 Obtain the Pod names:
 
-Delete a Pod with:
-
-New Pods that use the updated ConfigMap will be created.
 -->
 #### 反映 kube-proxy 的更改
 
@@ -325,12 +331,18 @@ New Pods that use the updated ConfigMap will be created.
 kubectl get po -n kube-system | grep kube-proxy
 ```
 
+<!--
+Delete a Pod with:
+-->
 使用以下命令删除 Pod：
 
 ```shell
 kubectl delete po -n kube-system <pod-name>
 ```
 
+<!--
+New Pods that use the updated ConfigMap will be created.
+-->
 将创建使用更新的 ConfigMap 的新 Pod。
 
 {{< note >}}
@@ -373,7 +385,6 @@ Once the CoreDNS changes are applied you can delete the CoreDNS Pods:
 
 Obtain the Pod names:
 
-Delete a Pod with:
 -->
 #### 反映 CoreDNS 的更改
 
@@ -385,6 +396,9 @@ Delete a Pod with:
 kubectl get po -n kube-system | grep coredns
 ```
 
+<!--
+Delete a Pod with:
+-->
 使用以下命令删除 Pod：
 
 ```shell
@@ -400,6 +414,7 @@ New Pods with the updated CoreDNS configuration will be created.
 <!--
 kubeadm does not allow CoreDNS configuration during cluster creation and upgrade.
 This means that if you execute `kubeadm upgrade apply`, your changes to the CoreDNS
+objects will be lost and must be reapplied.
 -->
 kubeadm 不允许在集群创建和升级期间配置 CoreDNS。
 这意味着如果执行了 `kubeadm upgrade apply`，你对 
@@ -474,36 +489,38 @@ the set of node specific patches must be updated accordingly.
 <!--
 #### Persisting kubelet reconfiguration
 
-Any changes to the `KubeletConfiguration` stored in `/var/lib/kubelet/config.conf` will be overwritten on
+Any changes to the `KubeletConfiguration` stored in `/var/lib/kubelet/config.yaml` will be overwritten on
 `kubeadm upgrade` by downloading the contents of the cluster wide `kubelet-config` ConfigMap.
-To persist kubelet node specific configuration either the file `/var/lib/kubelet/config.conf`
+To persist kubelet node specific configuration either the file `/var/lib/kubelet/config.yaml`
 has to be updated manually post-upgrade or the file `/var/lib/kubelet/kubeadm-flags.env` can include flags.
 The kubelet flags override the associated `KubeletConfiguration` options, but note that
 some of the flags are deprecated.
 
-A kubelet restart will be required after changing `/var/lib/kubelet/config.conf` or
+A kubelet restart will be required after changing `/var/lib/kubelet/config.yaml` or
 `/var/lib/kubelet/kubeadm-flags.env`.
 -->
 #### 持久化 kubelet 重新配置
 
-对存储在 `/var/lib/kubelet/config.conf` 中的 `KubeletConfiguration` 
+对存储在 `/var/lib/kubelet/config.yaml` 中的 `KubeletConfiguration` 
 所做的任何更改都将在 `kubeadm upgrade` 时因为下载集群范围内的 `kubelet-config`
 ConfigMap 的内容而被覆盖。
-要持久保存 kubelet 节点特定的配置，文件`/var/lib/kubelet/config.conf` 
-必须在升级后手动更新，或者文件`/var/lib/kubelet/kubeadm-flags.env` 可以包含标志。
+要持久保存 kubelet 节点特定的配置，文件 `/var/lib/kubelet/config.yaml` 
+必须在升级后手动更新，或者文件 `/var/lib/kubelet/kubeadm-flags.env` 可以包含标志。
 kubelet 标志会覆盖相关的 `KubeletConfiguration` 选项，但请注意，有些标志已被弃用。
 
-更改 `/var/lib/kubelet/config.conf` 或 `/var/lib/kubelet/kubeadm-flags.env` 
+更改 `/var/lib/kubelet/config.yaml` 或 `/var/lib/kubelet/kubeadm-flags.env` 
 后需要重启 kubelet。
 
-{{% heading "whatsnext" %}}
 
+## {{% heading "whatsnext" %}}
 <!--
 - [Upgrading kubeadm clusters](/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade)
 - [Customizing components with the kubeadm API](/docs/setup/production-environment/tools/kubeadm/control-plane-flags)
 - [Certificate management with kubeadm](/docs/tasks/administer-cluster/kubeadm/kubeadm-certs)
+- [Find more about kubeadm set-up](/docs/reference/setup-tools/kubeadm/)
 -->
 
 - [升级 kubeadm 集群](/zh-cn/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade)
 - [使用 kubeadm API 自定义组件](/zh-cn/docs/setup/production-environment/tools/kubeadm/control-plane-flags)
 - [使用 kubeadm 管理证书](/zh-cn/docs/tasks/administer-cluster/kubeadm/kubeadm-certs)
+- [进一步了解 kubeadm 设置](/zh-cn/docs/reference/setup-tools/kubeadm/)

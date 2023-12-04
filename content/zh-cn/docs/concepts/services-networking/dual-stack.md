@@ -1,26 +1,33 @@
 ---
 title: IPv4/IPv6 双协议栈
+description: >-
+  Kubernetes 允许你配置单协议栈 IPv4 网络、单协议栈 IPv6
+  网络或同时激活这两种网络的双协议栈网络。本页说明具体配置方法。
 feature:
   title: IPv4/IPv6 双协议栈
   description: >
     为 Pod 和 Service 分配 IPv4 和 IPv6 地址
 content_type: concept
-weight: 70
+weight: 90
 ---
 
 <!--
 title: IPv4/IPv6 dual-stack
+description: >-
+  Kubernetes lets you configure single-stack IPv4 networking,
+  single-stack IPv6 networking, or dual stack networking with
+  both network families active. This page explains how.
 feature:
   title: IPv4/IPv6 dual-stack
   description: >
     Allocation of IPv4 and IPv6 addresses to Pods and Services
 content_type: concept
 reviewers:
-- lachie83
-- khenidak
-- aramase
-- bridgetkromhout
-weight: 70
+  - lachie83
+  - khenidak
+  - aramase
+  - bridgetkromhout
+weight: 90
 -->
 
 <!-- overview -->
@@ -143,6 +150,18 @@ IPv6 CIDR 的一个例子：`fdXY:IJKL:MNOP:15::/64`
 （这里演示的是格式而非有效地址 - 请看 [RFC 4193](https://tools.ietf.org/html/rfc4193)）。
 {{< /note >}}
 
+{{< feature-state for_k8s_version="v1.27" state="alpha" >}}
+
+<!--
+When using an external cloud provider, you can pass a dual-stack `--node-ip` value to
+kubelet if you enable the `CloudDualStackNodeIPs` feature gate in both kubelet and the
+external cloud provider. This is only supported for cloud providers that support dual
+stack clusters.
+-->
+使用外部云驱动时，如果你在 kubelet 和外部云提供商中都启用了
+`CloudDualStackNodeIPs` 特性门控，则可以将双栈 `--node-ip`
+值传递给 kubelet。此特性需要保证云提供商支持双栈集群。
+
 <!--
 ## Services
 -->
@@ -192,12 +211,11 @@ families for dual-stack, you can choose the address families by setting an optio
 
 {{< note >}}
 <!--
-The `.spec.ipFamilies` field is immutable because the `.spec.ClusterIP` cannot be reallocated on a
-Service that already exists. If you want to change `.spec.ipFamilies`, delete and recreate the
-Service.
+The `.spec.ipFamilies` field is conditionally mutable: you can add or remove a secondary
+IP address family, but you cannot change the primary IP address family of an existing Service.
 -->
-`.spec.ipFamilies` 字段是不可变的，因为系统无法为已经存在的服务重新分配
-`.spec.ClusterIP`。如果你想改变 `.spec.ipFamilies`，则需要删除并重新创建服务。
+`.spec.ipFamilies` 字段修改是有条件的：你可以添加或删除第二个 IP 地址族，
+但你不能更改现有服务的主要 IP 地址族。
 {{< /note >}}
 
 <!--
@@ -240,30 +258,30 @@ These examples demonstrate the behavior of various dual-stack Service configurat
    this Service, Kubernetes assigns a cluster IP for the Service from the first configured
    `service-cluster-ip-range` and sets the `.spec.ipFamilyPolicy` to `SingleStack`. ([Services
    without selectors](/docs/concepts/services-networking/service/#services-without-selectors) and
-   [headless Services](/docs/concepts/services-networking/service/#headless-services) with selectors 
+   [headless Services](/docs/concepts/services-networking/service/#headless-services) with selectors
    will behave in this same way.)
 -->
 1. 此服务规约中没有显式设定 `.spec.ipFamilyPolicy`。当你创建此服务时，Kubernetes
-   从所配置的第一个 `service-cluster-ip-range` 种为服务分配一个集群IP，并设置
+   从所配置的第一个 `service-cluster-ip-range` 中为服务分配一个集群 IP，并设置
    `.spec.ipFamilyPolicy` 为 `SingleStack`。
    （[无选择算符的服务](/zh-cn/docs/concepts/services-networking/service/#services-without-selectors)
    和[无头服务](/zh-cn/docs/concepts/services-networking/service/#headless-services)的行为方式
    与此相同。）
 
-   {{< codenew file="service/networking/dual-stack-default-svc.yaml" >}}
+   {{% code_sample file="service/networking/dual-stack-default-svc.yaml" %}}
 
 <!--
 1. This Service specification explicitly defines `PreferDualStack` in `.spec.ipFamilyPolicy`. When
    you create this Service on a dual-stack cluster, Kubernetes assigns both IPv4 and IPv6
    addresses for the service. The control plane updates the `.spec` for the Service to record the IP
-   address assignments. The field `.spec.ClusterIPs` is the primary field, and contains both assigned 
+   address assignments. The field `.spec.ClusterIPs` is the primary field, and contains both assigned
    IP addresses; `.spec.ClusterIP` is a secondary field with its value calculated from
    `.spec.ClusterIPs`.
-   
+
    * For the `.spec.ClusterIP` field, the control plane records the IP address that is from the
-     same address family as the first service cluster IP range. 
+     same address family as the first service cluster IP range.
    * On a single-stack cluster, the `.spec.ClusterIPs` and `.spec.ClusterIP` fields both only list
-     one address. 
+     one address.
    * On a cluster with dual-stack enabled, specifying `RequireDualStack` in `.spec.ipFamilyPolicy`
      behaves the same as `PreferDualStack`.
 -->
@@ -280,7 +298,7 @@ These examples demonstrate the behavior of various dual-stack Service configurat
    * 对于启用了双协议栈的集群，将 `.spec.ipFamilyPolicy` 设置为
      `RequireDualStack` 时，其行为与 `PreferDualStack` 相同。
 
-   {{< codenew file="service/networking/dual-stack-preferred-svc.yaml" >}}
+   {{% code_sample file="service/networking/dual-stack-preferred-svc.yaml" %}}
 
 <!--
 1. This Service specification explicitly defines `IPv6` and `IPv4` in `.spec.ipFamilies` as well
@@ -294,7 +312,7 @@ These examples demonstrate the behavior of various dual-stack Service configurat
    `.spec.ClusterIP` 被设置成 IPv6 地址，因为它是 `.spec.ClusterIPs` 数组中的第一个元素，
    覆盖其默认值。
 
-   {{< codenew file="service/networking/dual-stack-preferred-ipfamilies-svc.yaml" >}}
+   {{% code_sample file="service/networking/dual-stack-preferred-ipfamilies-svc.yaml" %}}
 
 <!--
 #### Dual-stack defaults on existing Services
@@ -319,7 +337,7 @@ dual-stack.)
    `.spec.ipFamilyPolicy` 为 `SingleStack` 并设置 `.spec.ipFamilies`
    为服务的当前地址族。
 
-   {{< codenew file="service/networking/dual-stack-default-svc.yaml" >}}
+   {{% code_sample file="service/networking/dual-stack-default-svc.yaml" %}}
 
    <!--
    You can validate this behavior by using kubectl to inspect an existing service.
@@ -335,7 +353,7 @@ dual-stack.)
    kind: Service
    metadata:
      labels:
-       app: MyApp
+       app.kubernetes.io/name: MyApp
      name: my-service
    spec:
      clusterIP: 10.0.197.123
@@ -349,7 +367,7 @@ dual-stack.)
        protocol: TCP
        targetPort: 80
      selector:
-       app: MyApp
+       app.kubernetes.io/name: MyApp
      type: ClusterIP
    status:
      loadBalancer: {}
@@ -357,8 +375,8 @@ dual-stack.)
 
 <!--
 1. When dual-stack is enabled on a cluster, existing
-   [headless Services](/docs/concepts/services-networking/service/#headless-services) with selectors
-   are configured by the control plane to set `.spec.ipFamilyPolicy` to `SingleStack` and set
+   [headless Services](/docs/concepts/services-networking/service/#headless-services) with selectors are
+   configured by the control plane to set `.spec.ipFamilyPolicy` to `SingleStack` and set
    `.spec.ipFamilies` to the address family of the first service cluster IP range (configured via the
    `--service-cluster-ip-range` flag to the kube-apiserver) even though `.spec.ClusterIP` is set to
    `None`.
@@ -369,7 +387,7 @@ dual-stack.)
    并设置 `.spec.ipFamilies` 为第一个服务集群 IP 范围的地址族（通过配置 kube-apiserver 的
    `--service-cluster-ip-range` 参数），即使 `.spec.ClusterIP` 的设置值为 `None` 也如此。
 
-   {{< codenew file="service/networking/dual-stack-default-svc.yaml" >}}
+   {{% code_sample file="service/networking/dual-stack-default-svc.yaml" %}}
 
    <!--
    You can validate this behavior by using kubectl to inspect an existing headless service with selectors.
@@ -385,7 +403,7 @@ dual-stack.)
    kind: Service
    metadata:
      labels:
-       app: MyApp
+       app.kubernetes.io/name: MyApp
      name: my-service
    spec:
      clusterIP: None
@@ -399,7 +417,7 @@ dual-stack.)
        protocol: TCP
        targetPort: 80
      selector:
-       app: MyApp
+       app.kubernetes.io/name: MyApp
    ```
 
 <!--
@@ -466,8 +484,8 @@ Services can be changed from single-stack to dual-stack and from dual-stack to s
 
 <!--
 For [Headless Services without selectors](/docs/concepts/services-networking/service/#without-selectors)
-and without `.spec.ipFamilyPolicy` explicitly set, the `.spec.ipFamilyPolicy` field defaults
-to `RequireDualStack`.
+and without `.spec.ipFamilyPolicy` explicitly set, the `.spec.ipFamilyPolicy` field defaults to
+`RequireDualStack`.
 -->
 对于[不带选择算符的无头服务](/zh-cn/docs/concepts/services-networking/service/#without-selectors)，
 若没有显式设置 `.spec.ipFamilyPolicy`，则 `.spec.ipFamilyPolicy`

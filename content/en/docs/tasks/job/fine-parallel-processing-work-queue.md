@@ -119,7 +119,7 @@ called rediswq.py ([Download](/examples/application/job/redis/rediswq.py)).
 The "worker" program in each Pod of the Job uses the work queue
 client library to get work.  Here it is:
 
-{{< codenew language="python" file="application/job/redis/worker.py" >}}
+{{% code_sample language="python" file="application/job/redis/worker.py" %}}
 
 You could also download [`worker.py`](/examples/application/job/redis/worker.py),
 [`rediswq.py`](/examples/application/job/redis/rediswq.py), and
@@ -158,7 +158,7 @@ gcloud docker -- push gcr.io/<project>/job-wq-2
 
 Here is the job definition:
 
-{{< codenew file="application/job/redis/job.yaml" >}}
+{{% code_sample file="application/job/redis/job.yaml" %}}
 
 Be sure to edit the job template to
 change `gcr.io/myproject` to your own path.
@@ -208,9 +208,18 @@ Events:
   FirstSeen    LastSeen    Count    From            SubobjectPath    Type        Reason            Message
   ---------    --------    -----    ----            -------------    --------    ------            -------
   33s          33s         1        {job-controller }                Normal      SuccessfulCreate  Created pod: job-wq-2-lglf8
+```
 
+You can wait for the Job to succeed, with a timeout:
+```shell
+# The check for condition name is case insensitive
+kubectl wait --for=condition=complete --timeout=300s job/job-wq-2
+```
 
+```shell
 kubectl logs pods/job-wq-2-7r7b2
+```
+```
 Worker with sessionID: bbd72d0a-9e5c-4dd6-abf6-416cc267991f
 Initial queue state: empty=False
 Working on banana

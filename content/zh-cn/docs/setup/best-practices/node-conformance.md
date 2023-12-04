@@ -43,10 +43,10 @@ daemons installed:
 要运行节点一致性测试，节点必须满足与标准 Kubernetes 节点相同的前提条件。节点至少应安装以下守护程序：
 
 <!--
-* Container Runtime (Docker)
+* CRI-compatible container runtimes such as  Docker, Containerd and CRI-O
 * Kubelet
 -->
-* 容器运行时 (Docker)
+* 与 CRI 兼容的容器运行时，例如 Docker、Containerd 和 CRI-O
 * Kubelet
 
 <!--
@@ -74,7 +74,6 @@ To run the node conformance test, perform the following steps:
    一些其他的 kubelet 命令行参数可能会被用到：
    * `--cloud-provider`：如果使用 `--cloud-provider=gce`，需要移除这个参数来运行测试。
 
-
 <!--
 2. Run the node conformance test with command:
 
@@ -83,7 +82,7 @@ To run the node conformance test, perform the following steps:
 # $LOG_DIR is the test output path.
 sudo docker run -it --rm --privileged --net=host \
   -v /:/rootfs -v $CONFIG_DIR:$CONFIG_DIR -v $LOG_DIR:/var/result \
-  k8s.gcr.io/node-test:0.2
+  registry.k8s.io/node-test:0.2
 ```
 -->
 2. 使用以下命令运行节点一致性测试：
@@ -93,7 +92,7 @@ sudo docker run -it --rm --privileged --net=host \
    # $LOG_DIR 是测试的输出路径。
    sudo docker run -it --rm --privileged --net=host \
      -v /:/rootfs -v $CONFIG_DIR:$CONFIG_DIR -v $LOG_DIR:/var/result \
-     k8s.gcr.io/node-test:0.2
+     registry.k8s.io/node-test:0.2
    ```
 
 <!--
@@ -135,7 +134,7 @@ regular expression of tests you want to run.
 sudo docker run -it --rm --privileged --net=host \
   -v /:/rootfs:ro -v $CONFIG_DIR:$CONFIG_DIR -v $LOG_DIR:/var/result \
   -e FOCUS=MirrorPod \ # Only run MirrorPod test
-  k8s.gcr.io/node-test:0.2
+  registry.k8s.io/node-test:0.2
 ```
 
 <!--
@@ -149,14 +148,14 @@ regular expression of tests you want to skip.
 sudo docker run -it --rm --privileged --net=host \
   -v /:/rootfs:ro -v $CONFIG_DIR:$CONFIG_DIR -v $LOG_DIR:/var/result \
   -e SKIP=MirrorPod \ # Run all conformance tests but skip MirrorPod test
-  k8s.gcr.io/node-test:0.2
+  registry.k8s.io/node-test:0.2
 ```
 -->
 ```shell
 sudo docker run -it --rm --privileged --net=host \
   -v /:/rootfs:ro -v $CONFIG_DIR:$CONFIG_DIR -v $LOG_DIR:/var/result \
   -e SKIP=MirrorPod \ # 运行除 MirrorPod 测试外的所有一致性测试内容
-  k8s.gcr.io/node-test:0.2
+  registry.k8s.io/node-test:0.2
 ```
 
 

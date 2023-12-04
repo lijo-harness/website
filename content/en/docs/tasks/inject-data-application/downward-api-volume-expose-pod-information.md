@@ -13,7 +13,7 @@ A `downwardAPI` volume can expose Pod fields and container fields.
 
 In Kubernetes, there are two ways to expose Pod and container fields to a running container:
 
-* [Environment variables](/docs/tasks/inject-data-application/environment-variable-expose-pod-information/#the-downward-api)
+* [Environment variables](/docs/tasks/inject-data-application/environment-variable-expose-pod-information/)
 * Volume files, as explained in this task
 
 Together, these two ways of exposing Pod and container fields are called the
@@ -32,7 +32,7 @@ In this part of exercise, you create a Pod that has one container, and you
 project Pod-level fields into the running container as files.
 Here is the manifest for the Pod:
 
-{{< codenew file="pods/inject/dapi-volume.yaml" >}}
+{{% code_sample file="pods/inject/dapi-volume.yaml" %}}
 
 In the manifest, you can see that the Pod has a `downwardAPI` Volume,
 and the container mounts the volume at `/etc/podinfo`.
@@ -155,7 +155,7 @@ definition, but taken from the specific
 rather than from the Pod overall. Here is a manifest for a Pod that again has
 just one container:
 
-{{< codenew file="pods/inject/dapi-volume-resources.yaml" >}}
+{{% code_sample file="pods/inject/dapi-volume-resources.yaml" %}}
 
 In the manifest, you can see that the Pod has a
 [`downwardAPI` volume](/docs/concepts/storage/volumes/#downwardapi),

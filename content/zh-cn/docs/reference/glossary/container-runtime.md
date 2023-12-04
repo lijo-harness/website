@@ -12,7 +12,6 @@ tags:
 - workload
 ---
 <!--
----
 title: Container Runtime
 id: container-runtime
 date: 2019-06-05
@@ -24,25 +23,24 @@ aka:
 tags:
 - fundamental
 - workload
----
 -->
 
 <!--
- The container runtime is the software that is responsible for running containers.
+A fundamental component that empowers Kubernetes to run containers effectively.
+It is responsible for managing the execution and lifecycle of containers within the Kubernetes environment.
 -->
-容器运行环境是负责运行容器的软件。
+这个基础组件使 Kubernetes 能够有效运行容器。
+它负责管理 Kubernetes 环境中容器的执行和生命周期。
 
 <!--more-->
 
 <!--
-Kubernetes supports container runtimes such sa
-{{< glossary_tooltip term_id="docker">}},
+Kubernetes supports container runtimes such as
 {{< glossary_tooltip term_id="containerd" >}}, {{< glossary_tooltip term_id="cri-o" >}},
 and any other implementation of the [Kubernetes CRI (Container Runtime
 Interface)](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/container-runtime-interface.md).
 -->
 Kubernetes 支持许多容器运行环境，例如
-{{< glossary_tooltip term_id="docker">}}、
 {{< glossary_tooltip term_id="containerd" >}}、
 {{< glossary_tooltip term_id="cri-o" >}}
 以及 [Kubernetes CRI (容器运行环境接口)](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/container-runtime-interface.md)

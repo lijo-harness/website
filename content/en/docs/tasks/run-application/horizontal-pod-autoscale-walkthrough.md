@@ -54,34 +54,11 @@ To learn how to deploy the Metrics Server, see the
 
 ## Run and expose php-apache server
 
-To demonstrate a HorizontalPodAutoscaler, you will first make a custom container image that uses
-the `php-apache` image from Docker Hub as its starting point. The `Dockerfile` is ready-made for you,
-and has the following content:
-
-```dockerfile
-FROM php:5-apache
-COPY index.php /var/www/html/index.php
-RUN chmod a+rx index.php
-```
-
-This code defines a simple `index.php` page that performs some CPU intensive computations,
-in order to simulate load in your cluster.
-
-```php
-<?php
-  $x = 0.0001;
-  for ($i = 0; $i <= 1000000; $i++) {
-    $x += sqrt($x);
-  }
-  echo "OK!";
-?>
-```
-
-Once you have made that container image, start a Deployment that runs a container using the
-image you made, and expose it as a {{< glossary_tooltip term_id="service">}}
+To demonstrate a HorizontalPodAutoscaler, you will first start a Deployment that runs a container using the
+`hpa-example` image, and expose it as a {{< glossary_tooltip term_id="service">}}
 using the following manifest:
 
-{{< codenew file="application/php-apache.yaml" >}}
+{{% code_sample file="application/php-apache.yaml" %}}
 
 To do so, run the following command:
 
@@ -521,7 +498,7 @@ between `1` and `1500m`, or `1` and `1.5` when written in decimal notation.
 Instead of using `kubectl autoscale` command to create a HorizontalPodAutoscaler imperatively we
 can use the following manifest to create it declaratively:
 
-{{< codenew file="application/hpa/php-apache.yaml" >}}
+{{% code_sample file="application/hpa/php-apache.yaml" %}}
 
 Then, create the autoscaler by executing the following command:
 

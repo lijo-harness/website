@@ -18,7 +18,7 @@ draft](https://github.com/ietf-wg-acme/acme/).
 
 {{< note >}}
 Certificates created using the `certificates.k8s.io` API are signed by a
-[dedicated CA](#a-note-to-cluster-administrators). It is possible to configure your cluster to use the cluster root
+[dedicated CA](#configuring-your-cluster-to-provide-signing). It is possible to configure your cluster to use the cluster root
 CA for this purpose, but you should never rely on this. Do not assume that
 these certificates will validate against the cluster root CA.
 {{< /note >}}
@@ -36,13 +36,13 @@ You need the `cfssl` tool. You can download `cfssl` from
 
 Some steps in this page use the `jq` tool. If you don't have `jq`, you can
 install it via your operating system's software sources, or fetch it from
-[https://stedolan.github.io/jq/](https://stedolan.github.io/jq/).
+[https://jqlang.github.io/jq/](https://jqlang.github.io/jq/).
 
 <!-- steps -->
 
 ## Trusting TLS in a cluster
 
-Trusting the [custom CA](#a-note-to-cluster-administrators) from an application running as a pod usually requires
+Trusting the [custom CA](#configuring-your-cluster-to-provide-signing) from an application running as a pod usually requires
 some extra application configuration. You will need to add the CA certificate
 bundle to the list of CA certificates that the TLS client or server trusts. For
 example, you would do this with a golang TLS config by parsing the certificate
@@ -236,7 +236,7 @@ This produces a certificate authority key file (`ca-key.pem`) and certificate (`
 
 ### Issue a certificate
 
-{{< codenew file="tls/server-signing-config.json" >}}
+{{% code_sample file="tls/server-signing-config.json" %}}
 
 Use a `server-signing-config.json` signing configuration and the certificate authority key file 
 and certificate to sign the certificate request:
@@ -267,7 +267,7 @@ kubectl get csr my-svc.my-namespace -o json | \
 ```
 
 {{< note >}}
-This uses the command line tool [`jq`](https://stedolan.github.io/jq/) to populate the base64-encoded
+This uses the command line tool [`jq`](https://jqlang.github.io/jq/) to populate the base64-encoded
 content in the `.status.certificate` field.
 If you do not have `jq`, you can also save the JSON output to a file, populate this field manually, and
 upload the resulting file.
@@ -357,7 +357,7 @@ reference page.
 
 ## Configuring your cluster to provide signing
 
-This page assumes that a signer is setup to serve the certificates API. The
+This page assumes that a signer is set up to serve the certificates API. The
 Kubernetes controller manager provides a default implementation of a signer. To
 enable it, pass the `--cluster-signing-cert-file` and
 `--cluster-signing-key-file` parameters to the controller manager with paths to

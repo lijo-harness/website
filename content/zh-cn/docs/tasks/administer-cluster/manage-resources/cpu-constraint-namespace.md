@@ -3,7 +3,8 @@ title: 为命名空间配置 CPU 最小和最大约束
 content_type: task
 weight: 40
 description: >-
-  为命名空间定义一个有效的 CPU 资源限制范围，使得在该命名空间中所有新建 Pod 的 CPU 资源是在你所设置的范围内。
+  为命名空间定义一个有效的 CPU 资源限制范围，使得在该命名空间中所有新建
+  Pod 的 CPU 资源是在你所设置的范围内。
 ---
 
 <!--
@@ -26,9 +27,7 @@ object. If a Pod does not meet the constraints imposed by the LimitRange, it can
 in the namespace.
 -->
 本页介绍如何为{{< glossary_tooltip text="命名空间" term_id="namespace" >}}中的容器和 Pod
-设置其所使用的 CPU 资源的最小和最大值。
-你可以通过
-[LimitRange](/docs/reference/kubernetes-api/policy-resources/limit-range-v1/)
+设置其所使用的 CPU 资源的最小和最大值。你可以通过 [LimitRange](/zh-cn/docs/reference/kubernetes-api/policy-resources/limit-range-v1/)
 对象声明 CPU 的最小和最大值.
 如果 Pod 不能满足 LimitRange 的限制，就无法在该命名空间中被创建。
 
@@ -75,12 +74,12 @@ Here's a manifest for an example {{< glossary_tooltip text="LimitRange" term_id=
 
 以下为 {{< glossary_tooltip text="LimitRange" term_id="limitrange" >}} 的示例清单：
 
-{{< codenew file="admin/resource/cpu-constraints.yaml" >}}
+{{% code_sample file="admin/resource/cpu-constraints.yaml" %}}
 
 <!--
 Create the LimitRange:
 -->
-创建 LimitRange:
+创建 LimitRange：
 
 ```shell
 kubectl apply -f https://k8s.io/examples/admin/resource/cpu-constraints.yaml --namespace=constraints-cpu-example
@@ -128,7 +127,7 @@ of the Kubernetes API creates an equivalent Pod), Kubernetes performs these step
 * Verify that every container in that Pod specifies a CPU limit that is less than or equal to 800 millicpu.
 -->
 
-现在，每当你在 constraints-mem-example 命名空间中创建 Pod 时，或者某些其他的
+现在，每当你在 constraints-cpu-example 命名空间中创建 Pod 时，或者某些其他的
 Kubernetes API 客户端创建了等价的 Pod 时，Kubernetes 就会执行下面的步骤：
 
 * 如果 Pod 中的任何容器未声明自己的 CPU 请求和限制，控制面将为该容器设置默认的 CPU 请求和限制。
@@ -143,8 +142,8 @@ or GPUs as well. However, when both `default` and `defaultRequest` are specified
 on these resources, the two values must be the same.
 -->
 {{< note >}}
-当创建 LimitRange 对象时，你也可以声明大页面和 GPU 的限制。
-当这些资源同时声明了 'default' 和 'defaultRequest' 参数时，两个参数值必须相同。
+当创建 `LimitRange` 对象时，你也可以声明大页面和 GPU 的限制。
+当这些资源同时声明了 `default` 和 `defaultRequest` 参数时，两个参数值必须相同。
 {{< /note >}}
 
 <!--
@@ -153,10 +152,10 @@ specifies a CPU request of 500 millicpu and a CPU limit of 800 millicpu. These s
 minimum and maximum CPU constraints imposed by the LimitRange for this namespace.
 -->
 以下为某个仅包含一个容器的 Pod 的清单。
-该容器声明了 CPU 请求 500 millicpu 和 CPU 限制 800 millicpu 。
+该容器声明了 CPU 请求 500 millicpu 和 CPU 限制 800 millicpu。
 这些参数满足了 LimitRange 对象为此名字空间规定的 CPU 最小和最大限制。
 
-{{< codenew file="admin/resource/cpu-constraints-pod.yaml" >}}
+{{% code_sample file="admin/resource/cpu-constraints-pod.yaml" %}}
 
 <!--
 Create the Pod:
@@ -212,15 +211,15 @@ kubectl delete pod constraints-cpu-demo --namespace=constraints-cpu-example
 <!--
 ## Attempt to create a Pod that exceeds the maximum CPU constraint
 
-Here's the configuration file for a Pod that has one Container. The Container specifies a
+Here's a manifest for a Pod that has one container. The container specifies a
 CPU request of 500 millicpu and a cpu limit of 1.5 cpu.
 -->
 ## 尝试创建一个超过最大 CPU 限制的 Pod
 
-这里给出了包含一个容器的 Pod 的配置文件。容器声明了 500 millicpu 的 CPU 
+这里给出了包含一个容器的 Pod 清单。容器声明了 500 millicpu 的 CPU 
 请求和 1.5 CPU 的 CPU 限制。
 
-{{< codenew file="admin/resource/cpu-constraints-pod-2.yaml" >}}
+{{% code_sample file="admin/resource/cpu-constraints-pod-2.yaml" %}}
 
 <!--
 Attempt to create the Pod:
@@ -253,7 +252,7 @@ CPU request of 100 millicpu and a CPU limit of 800 millicpu.
 
 以下为某个只有一个容器的 Pod 的清单。该容器声明了 CPU 请求 100 millicpu 和 CPU 限制 800 millicpu。
 
-{{< codenew file="admin/resource/cpu-constraints-pod-3.yaml" >}}
+{{% code_sample file="admin/resource/cpu-constraints-pod-3.yaml" %}}
 
 <!--
 Attempt to create the Pod:
@@ -274,7 +273,7 @@ enforced minimum:
 
 ```
 Error from server (Forbidden): error when creating "examples/admin/resource/cpu-constraints-pod-3.yaml":
-pods "constraints-cpu-demo-4" is forbidden: minimum cpu usage per Container is 200m, but request is 100m.
+pods "constraints-cpu-demo-3" is forbidden: minimum cpu usage per Container is 200m, but request is 100m.
 ```
 
 <!--
@@ -287,7 +286,7 @@ specify a CPU request, nor does it specify a CPU limit.
 
 以下为一个只有一个容器的 Pod 的清单。该容器没有声明 CPU 请求，也没有声明 CPU 限制。
 
-{{< codenew file="admin/resource/cpu-constraints-pod-4.yaml" >}}
+{{% code_sample file="admin/resource/cpu-constraints-pod-4.yaml" %}}
 
 <!--
 Create the Pod:
@@ -385,7 +384,8 @@ You want to allow production workloads to consume up to 3 CPU, but you want deve
 to 1 CPU. You create separate namespaces for production and development, and you apply CPU constraints to
 each namespace.
 -->
-* 集群中的每个节点有两个 CPU。你不想接受任何请求超过 2 个 CPU 的 Pod，因为集群中没有节点可以支持这种请求。
+* 集群中的每个节点有两个 CPU。你不想接受任何请求超过 2 个 CPU 的 Pod，
+  因为集群中没有节点可以支持这种请求。
 * 你的生产和开发部门共享一个集群。你想允许生产工作负载消耗 3 个 CPU，
   而开发部门工作负载的消耗限制为 1 个 CPU。
   你可以为生产和开发创建不同的命名空间，并且为每个命名空间都应用 CPU 限制。
@@ -408,24 +408,24 @@ kubectl delete namespace constraints-cpu-example
 <!--
 ### For cluster administrators
 
-* [Configure Default Memory Requests and Limits for a Namespace](/docs/tasks/administer-cluster/memory-default-namespace/)
+* [Configure Default Memory Requests and Limits for a Namespace](/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/)
 
-* [Configure Default CPU Requests and Limits for a Namespace](/docs/tasks/administer-cluster/cpu-default-namespace/)
+* [Configure Default CPU Requests and Limits for a Namespace](/docs/tasks/administer-cluster/manage-resources/cpu-default-namespace/)
 
-* [Configure Minimum and Maximum Memory Constraints for a Namespace](/docs/tasks/administer-cluster/memory-constraint-namespace/)
+* [Configure Minimum and Maximum Memory Constraints for a Namespace](/docs/tasks/administer-cluster/manage-resources/memory-constraint-namespace/)
 
-* [Configure Memory and CPU Quotas for a Namespace](/docs/tasks/administer-cluster/quota-memory-cpu-namespace/)
+* [Configure Memory and CPU Quotas for a Namespace](/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/)
 
-* [Configure a Pod Quota for a Namespace](/docs/tasks/administer-cluster/quota-pod-namespace/)
+* [Configure a Pod Quota for a Namespace](/docs/tasks/administer-cluster/manage-resources/quota-pod-namespace/)
 
 * [Configure Quotas for API Objects](/docs/tasks/administer-cluster/quota-api-object/)
 -->
 
-### 集群管理员参考：
+### 集群管理员参考
 
 * [为命名空间配置默认内存请求和限制](/zh-cn/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/)
+* [为命名空间配置默认 CPU 请求和限制](/zh-cn/docs/tasks/administer-cluster/manage-resources/cpu-default-namespace/)
 * [为命名空间配置内存限制的最小值和最大值](/zh-cn/docs/tasks/administer-cluster/manage-resources/memory-constraint-namespace/)
-* [为命名空间配置 CPU 限制的最小值和最大值](/zh-cn/docs/tasks/administer-cluster/manage-resources/cpu-constraint-namespace/)
 * [为命名空间配置内存和 CPU 配额](/zh-cn/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/)
 * [为命名空间配置 Pod 配额](/zh-cn/docs/tasks/administer-cluster/manage-resources/quota-pod-namespace/)
 * [为 API 对象配置配额](/zh-cn/docs/tasks/administer-cluster/quota-api-object/)
@@ -438,9 +438,8 @@ kubectl delete namespace constraints-cpu-example
 * [Configure Quality of Service for Pods](/docs/tasks/configure-pod-container/quality-service-pod/)
 -->
 
-### 应用开发者参考：
+### 应用开发者参考
 
 * [为容器和 Pod 分配内存资源](/zh-cn/docs/tasks/configure-pod-container/assign-memory-resource/)
 * [为容器和 Pod 分配 CPU 资源](/zh-cn/docs/tasks/configure-pod-container/assign-cpu-resource/)
 * [为 Pod 配置服务质量](/zh-cn/docs/tasks/configure-pod-container/quality-service-pod/)
-

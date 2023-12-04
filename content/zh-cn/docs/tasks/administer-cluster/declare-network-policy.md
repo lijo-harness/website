@@ -2,6 +2,7 @@
 title: 声明网络策略
 min-kubernetes-server-version: v1.8
 content_type: task
+weight: 180
 ---
 <!--
 reviewers:
@@ -10,6 +11,7 @@ reviewers:
 title: Declare Network Policy
 min-kubernetes-server-version: v1.8
 content_type: task
+weight: 180
 -->
 
 <!-- overview -->
@@ -90,11 +92,11 @@ kubectl get svc,pod
 ```
 ```none
 NAME                        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
-svc/kubernetes              10.100.0.1    <none>        443/TCP    46m
-svc/nginx                   10.100.0.16   <none>        80/TCP     33s
+service/kubernetes          10.100.0.1    <none>        443/TCP    46m
+service/nginx               10.100.0.16   <none>        80/TCP     33s
 
 NAME                        READY         STATUS        RESTARTS   AGE
-po/nginx-701339712-e0qfq    1/1           Running       0          35s
+pod/nginx-701339712-e0qfq   1/1           Running       0          35s
 ```
 
 <!--
@@ -105,10 +107,10 @@ You should be able to access the new `nginx` service from other Pods. To access 
 ## 通过从 Pod 访问服务对其进行测试
 
 你应该可以从其它的 Pod 访问这个新的 `nginx` 服务。
-要从 default 命名空间中的其它s Pod 来访问该服务。可以启动一个 busybox 容器：
+要从 default 命名空间中的其它 Pod 来访问该服务。可以启动一个 busybox 容器：
 
 ```shell
-kubectl run busybox --rm -ti --image=busybox:1.28 /bin/sh
+kubectl run busybox --rm -ti --image=busybox:1.28 -- /bin/sh
 ```
 
 <!--
@@ -135,7 +137,7 @@ To limit the access to the `nginx` service so that only Pods with the label `acc
 如果想限制对 `nginx` 服务的访问，只让那些拥有标签 `access: true` 的 Pod 访问它，
 那么可以创建一个如下所示的 NetworkPolicy 对象：
 
-{{< codenew file="service/networking/nginx-policy.yaml" >}}
+{{% code_sample file="service/networking/nginx-policy.yaml" %}}
 
 <!--
 The name of a NetworkPolicy object must be a valid
@@ -222,4 +224,3 @@ wget --spider --timeout=1 nginx
 Connecting to nginx (10.100.0.16:80)
 remote file exists
 ```
-

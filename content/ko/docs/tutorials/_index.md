@@ -49,12 +49,13 @@ content_type: concept
 
 ## 서비스
 
+* [서비스들로 애플리케이션에 접속하기](/ko/docs/tutorials/services/connect-applications-service/)
 * [소스 IP 주소 이용하기](/ko/docs/tutorials/services/source-ip/)
 
 ## 보안
 
-* [파드 보안 표준을 클러스터 수준으로 적용하기](/docs/tutorials/security/cluster-level-pss/)
-* [파드 보안 표준을 네임스페이스 수준으로 적용하기](/docs/tutorials/security/ns-level-pss/)
+* [파드 보안 표준을 클러스터 수준으로 적용하기](/ko/docs/tutorials/security/cluster-level-pss/)
+* [파드 보안 표준을 네임스페이스 수준으로 적용하기](/ko/docs/tutorials/security/ns-level-pss/)
 * [AppArmor](/ko/docs/tutorials/security/apparmor/)
 * [seccomp](/docs/tutorials/security/seccomp/)
 ## {{% heading "whatsnext" %}}

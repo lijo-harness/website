@@ -11,7 +11,7 @@ weight: 30
 <img src="/images/kubeadm-stacked-color.png" align="right" width="150px"></img>
 Using `kubeadm`, you can create a minimum viable Kubernetes cluster that conforms to best practices.
 In fact, you can use `kubeadm` to set up a cluster that will pass the
-[Kubernetes Conformance tests](https://kubernetes.io/blog/2017/10/software-conformance-certification).
+[Kubernetes Conformance tests](/blog/2017/10/software-conformance-certification/).
 `kubeadm` also supports other cluster lifecycle functions, such as
 [bootstrap tokens](/docs/reference/access-authn-authz/bootstrap-tokens/) and cluster upgrades.
 
@@ -72,22 +72,81 @@ Any commands under `kubeadm alpha` are, by definition, supported on an alpha lev
 
 ### Preparing the hosts
 
+#### Component installation
+
 Install a {{< glossary_tooltip term_id="container-runtime" text="container runtime" >}} and kubeadm on all the hosts.
 For detailed instructions and other prerequisites, see [Installing kubeadm](/docs/setup/production-environment/tools/kubeadm/install-kubeadm/).
 
 {{< note >}}
-If you have already installed kubeadm, run `apt-get update &&
-apt-get upgrade` or `yum update` to get the latest version of kubeadm.
+If you have already installed kubeadm, see the first two steps of the
+[Upgrading Linux nodes](/docs/tasks/administer-cluster/kubeadm/upgrading-linux-nodes) document for instructions on how to upgrade kubeadm.
 
 When you upgrade, the kubelet restarts every few seconds as it waits in a crashloop for
 kubeadm to tell it what to do. This crashloop is expected and normal.
 After you initialize your control-plane, the kubelet runs normally.
 {{< /note >}}
 
+#### Network setup
+
+kubeadm similarly to other Kubernetes components tries to find a usable IP on
+the network interfaces associated with a default gateway on a host. Such
+an IP is then used for the advertising and/or listening performed by a component.
+
+To find out what this IP is on a Linux host you can use:
+
+```shell
+ip route show # Look for a line starting with "default via"
+```
+
+{{< note >}}
+If two or more default gateways are present on the host, a Kubernetes component will
+try to use the first one it encounters that has a suitable global unicast IP address.
+While making this choice, the exact ordering of gateways might vary between different
+operating systems and kernel versions.
+{{< /note >}}
+
+Kubernetes components do not accept custom network interface as an option,
+therefore a custom IP address must be passed as a flag to all components instances
+that need such a custom configuration.
+
+{{< note >}}
+If the host does not have a default gateway and if a custom IP address is not passed
+to a Kubernetes component, the component may exit with an error.
+{{< /note >}}
+
+To configure the API server advertise address for control plane nodes created with both
+`init` and `join`, the flag `--apiserver-advertise-address` can be used.
+Preferably, this option can be set in the [kubeadm API](/docs/reference/config-api/kubeadm-config.v1beta3)
+as `InitConfiguration.localAPIEndpoint` and `JoinConfiguration.controlPlane.localAPIEndpoint`.
+
+For kubelets on all nodes, the `--node-ip` option can be passed in
+`.nodeRegistration.kubeletExtraArgs` inside a kubeadm configuration file
+(`InitConfiguration` or `JoinConfiguration`).
+
+For dual-stack see
+[Dual-stack support with kubeadm](/docs/setup/production-environment/tools/kubeadm/dual-stack-support).
+
+The IP addresses that you assign to control plane components become part of their X.509 certificates'
+subject alternative name fields. Changing these IP addresses would require
+signing new certificates and restarting the affected components, so that the change in
+certificate files is reflected. See
+[Manual certificate renewal](/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/#manual-certificate-renewal)
+for more details on this topic.
+
+{{< warning >}}
+The Kubernetes project recommends against this approach (configuring all component instances
+with custom IP addresses). Instead, the Kubernetes maintainers recommend to setup the host network,
+so that the default gateway IP is the one that Kubernetes components auto-detect and use.
+On Linux nodes, you can use commands such as `ip route` to configure networking; your operating
+system might also provide higher level network management tools. If your node's default gateway
+is a public IP address, you should configure packet filtering or other security measures that
+protect the nodes and your cluster.
+{{< /warning >}}
+
 ### Preparing the required container images
 
 This step is optional and only applies in case you wish `kubeadm init` and `kubeadm join`
-to not download the default container images which are hosted at `k8s.gcr.io`.
+to not download the default container images which are hosted at `registry.k8s.io`.
 
 Kubeadm has commands that can help you pre-pull the required images
 when creating a cluster without an internet connection on its nodes.
@@ -117,11 +176,6 @@ a provider-specific value. See [Installing a Pod network add-on](#pod-network).
 known endpoints. To use different container runtime or if there are more than one installed
 on the provisioned node, specify the `--cri-socket` argument to `kubeadm`. See
 [Installing a runtime](/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#installing-runtime).
-1. (Optional) Unless otherwise specified, `kubeadm` uses the network interface associated
-with the default gateway to set the advertise address for this particular control-plane node's API server.
-To use a different network interface, specify the `--apiserver-advertise-address=<ip-address>` argument
-to `kubeadm init`. To deploy an IPv6 Kubernetes cluster using IPv6 addressing, you
-must specify an IPv6 address, for example `--apiserver-advertise-address=fd00::101`
 
 To initialize the control-plane node run:
 
@@ -304,7 +358,7 @@ reasons. If you want to be able to schedule Pods on the control plane nodes,
 for example for a single machine Kubernetes cluster, run:
 
 ```bash
-kubectl taint nodes --all node-role.kubernetes.io/control-plane- node-role.kubernetes.io/master-
+kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 ```
 
 The output will look something like:
@@ -314,14 +368,9 @@ node "test-01" untainted
 ...
 ```
 
-This will remove the `node-role.kubernetes.io/control-plane` and
-`node-role.kubernetes.io/master` taints from any nodes that have them,
-including the control plane nodes, meaning that the scheduler will then be able
-to schedule Pods everywhere.
-
-{{< note >}}
-The `node-role.kubernetes.io/master` taint is deprecated and kubeadm will stop using it in version 1.25.
-{{< /note >}}
+This will remove the `node-role.kubernetes.io/control-plane:NoSchedule` taint
+from any nodes that have it, including the control plane nodes, meaning that the
+scheduler will then be able to schedule Pods everywhere.
 
 ### Joining your nodes {#join-nodes}
 
@@ -381,7 +430,7 @@ The output is similar to:
 ```
 
 {{< note >}}
-To specify an IPv6 tuple for `<control-plane-host>:<control-plane-port>`, IPv6 address must be enclosed in square brackets, for example: `[fd00::101]:2073`.
+To specify an IPv6 tuple for `<control-plane-host>:<control-plane-port>`, IPv6 address must be enclosed in square brackets, for example: `[2001:db8::101]:2073`.
 {{< /note >}}
 
 The output should look something like:
@@ -427,7 +476,7 @@ and `scp` using that other user instead.
 The `admin.conf` file gives the user _superuser_ privileges over the cluster.
 This file should be used sparingly. For normal users, it's recommended to
 generate an unique credential to which you grant privileges. You can do
-this with the `kubeadm alpha kubeconfig user --client-name <CN>`
+this with the `kubeadm kubeconfig user --client-name <CN>`
 command. That command will print out a KubeConfig file to STDOUT which you
 should save to a file and distribute to your user. After that, grant
 privileges by using `kubectl create (cluster)rolebinding`.
@@ -582,7 +631,7 @@ Example for `kubeadm upgrade`:
 or {{< skew currentVersion >}}
 
 To learn more about the version skew between the different Kubernetes component see
-the [Version Skew Policy](https://kubernetes.io/releases/version-skew-policy/).
+the [Version Skew Policy](/releases/version-skew-policy/).
 
 ## Limitations {#limitations}
 
@@ -594,7 +643,7 @@ data and may need to be recreated from scratch.
 
 Workarounds:
 
-* Regularly [back up etcd](https://coreos.com/etcd/docs/latest/admin_guide.html). The
+* Regularly [back up etcd](https://etcd.io/docs/v3.5/op-guide/recovery/). The
   etcd data directory configured by kubeadm is at `/var/lib/etcd` on the control-plane node.
 
 * Use multiple control-plane nodes. You can read

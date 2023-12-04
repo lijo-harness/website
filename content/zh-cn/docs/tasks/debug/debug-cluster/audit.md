@@ -6,13 +6,11 @@ content_type: concept
 reviewers:
 - soltysh
 - sttts
-- ericchiang
 content_type: concept
 title: Auditing
 -->
-<!-- overview -->
 
-{{< feature-state state="beta" >}}
+<!-- overview -->
 
 <!--
 Kubernetes _auditing_ provides a security-relevant, chronological set of records documenting
@@ -21,7 +19,7 @@ by applications that use the Kubernetes API, and by the control plane itself.
 
 Auditing allows cluster administrators to answer the following questions:
 -->
-Kubernetes **审计（Auditing）**功能提供了与安全相关的、按时间顺序排列的记录集，
+Kubernetes **审计（Auditing）** 功能提供了与安全相关的、按时间顺序排列的记录集，
 记录每个用户、使用 Kubernetes API 的应用以及控制面自身引发的活动。
 
 审计功能使得集群管理员能够回答以下问题：
@@ -56,9 +54,8 @@ include logs files and webhooks.
 -->
 审计记录最初产生于
 [kube-apiserver](/zh-cn/docs/reference/command-line-tools-reference/kube-apiserver/)
-内部。每个请求在不同执行阶段都会生成审计事件；这些审计事件会根据特定策略
-被预处理并写入后端。策略确定要记录的内容和用来存储记录的后端。
-当前的后端支持日志文件和 webhook。
+内部。每个请求在不同执行阶段都会生成审计事件；这些审计事件会根据特定策略被预处理并写入后端。
+策略确定要记录的内容和用来存储记录的后端，当前的后端支持日志文件和 webhook。
 
 <!--
 Each request can be recorded with an associated _stage_. The defined stages are:
@@ -75,13 +72,14 @@ Each request can be recorded with an associated _stage_. The defined stages are:
 -->
 每个请求都可被记录其相关的**阶段（stage）**。已定义的阶段有：
 
-- `RequestReceived` - 此阶段对应审计处理器接收到请求后，并且在委托给
-  其余处理器之前生成的事件。
+- `RequestReceived` - 此阶段对应审计处理器接收到请求后，
+  并且在委托给其余处理器之前生成的事件。
 - `ResponseStarted` - 在响应消息的头部发送后，响应消息体发送前生成的事件。
   只有长时间运行的请求（例如 watch）才会生成这个阶段。
 - `ResponseComplete` - 当响应消息体完成并且没有更多数据需要传输的时候。
 - `Panic` - 当 panic 发生时生成。
 
+{{< note >}}
 <!-- 
 The configuration of an
 [Audit Event configuration](/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Event)
@@ -89,7 +87,6 @@ is different from the
 [Event](/docs/reference/generated/kubernetes-api/{{< param "version" >}}/#event-v1-core)
 API object.
 -->
-{{< note >}}
 [审计事件配置](/zh-cn/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Event)
 的配置与 [Event](/docs/reference/generated/kubernetes-api/{{< param "version" >}}/#event-v1-core)
 API 对象不同。
@@ -98,13 +95,13 @@ API 对象不同。
 <!--
 The audit logging feature increases the memory consumption of the API server
 because some context required for auditing is stored for each request.
-Additionally, memory consumption depends on the audit logging configuration.
+Memory consumption depends on the audit logging configuration.
 -->
 审计日志记录功能会增加 API server 的内存消耗，因为需要为每个请求存储审计所需的某些上下文。
-此外，内存消耗取决于审计日志记录的配置。
+内存消耗取决于审计日志记录的配置。
 
 <!--
-## Audit Policy
+## Audit policy
 
 Audit policy defines rules about what events should be recorded and what data
 they should include. The audit policy object structure is defined in the
@@ -115,11 +112,11 @@ _audit level_ of the event. The defined audit levels are:
 -->
 ## 审计策略  {#audit-policy}
 
-审计政策定义了关于应记录哪些事件以及应包含哪些数据的规则。
+审计策略定义了关于应记录哪些事件以及应包含哪些数据的规则。
 审计策略对象结构定义在
-[`audit.k8s.io` API 组](/zh-cn/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Policy)
-处理事件时，将按顺序与规则列表进行比较。第一个匹配规则设置事件的
-**审计级别（Audit Level）**。已定义的审计级别有：
+[`audit.k8s.io` API 组](/zh-cn/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Policy)。
+处理事件时，将按顺序与规则列表进行比较。第一个匹配规则设置事件的**审计级别（Audit Level）**。
+已定义的审计级别有：
 
 <!--
 - `None` - don't log events that match this rule.
@@ -151,7 +148,7 @@ Below is an example audit policy file:
 
 以下是一个审计策略文件的示例：
 
-{{< codenew file="audit/audit-policy.yaml" >}}
+{{% code_sample file="audit/audit-policy.yaml" %}}
 
 <!--
 You can use a minimal audit policy file to log all requests at the `Metadata` level:
@@ -169,7 +166,7 @@ rules:
 <!--
 If you're crafting your own audit profile, you can use the audit profile for Google Container-Optimized OS as a starting point. You can check the
 [configure-helper.sh](https://github.com/kubernetes/kubernetes/blob/master/cluster/gce/gci/configure-helper.sh)
-script, which generates the audit policy file. You can see most of the audit policy file by looking directly at the script.
+script, which generates an audit policy file. You can see most of the audit policy file by looking directly at the script.
 
 You can also refer to the [`Policy` configuration reference](/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Policy)
 for details about the fields defined.
@@ -194,10 +191,9 @@ Out of the box, the kube-apiserver provides two backends:
 In all cases, audit events follow a structure defined by the Kubernetes API in the
 [`audit.k8s.io` API group](/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Event).
 -->
-
 ## 审计后端   {#audit-backends}
 
-审计后端实现将审计事件导出到外部存储。`Kube-apiserver` 默认提供两个后端：
+审计后端实现将审计事件导出到外部存储。`kube-apiserver` 默认提供两个后端：
 
 - Log 后端，将事件写入到文件系统
 - Webhook 后端，将事件发送到外部 HTTP API
@@ -206,16 +202,16 @@ In all cases, audit events follow a structure defined by the Kubernetes API in t
 [`audit.k8s.io` API 组](/zh-cn/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Event)
 中定义的结构。
 
+{{< note >}}
 <!--
 In case of patches, request body is a JSON array with patch operations, not a JSON object
 with an appropriate Kubernetes API object. For example, the following request body is a valid patch
-request to `/apis/batch/v1/namespaces/some-namespace/jobs/some-job-name`.
+request to `/apis/batch/v1/namespaces/some-namespace/jobs/some-job-name`:
 -->
-{{< note >}}
 对于 patch 请求，请求的消息体需要是设定 patch 操作的 JSON 所构成的一个串，
-而不是一个完整的 Kubernetes API 对象 JSON 串。
+而不是一个完整的 Kubernetes API 对象的 JSON 串。
 例如，以下的示例是一个合法的 patch 请求消息体，该请求对应
-`/apis/batch/v1/namespaces/some-namespace/jobs/some-job-name`。
+`/apis/batch/v1/namespaces/some-namespace/jobs/some-job-name`：
 
 ```json
 [
@@ -237,13 +233,10 @@ request to `/apis/batch/v1/namespaces/some-namespace/jobs/some-job-name`.
 
 The log backend writes audit events to a file in [JSONlines](https://jsonlines.org/) format.
 You can configure the log audit backend using the following `kube-apiserver` flags:
-
-Log backend writes audit events to a file in JSON format. You can configure
-log audit backend using the following [kube-apiserver][kube-apiserver] flags:
 -->
 ### Log 后端   {#log-backend}
 
-Log 后端将审计事件写入 [JSONlines](https://jsonlines.org/)  格式的文件。
+Log 后端将审计事件写入 [JSONlines](https://jsonlines.org/) 格式的文件。
 你可以使用以下 `kube-apiserver` 标志配置 Log 审计后端：
 
 <!--
@@ -256,7 +249,7 @@ Log 后端将审计事件写入 [JSONlines](https://jsonlines.org/)  格式的�
 - `--audit-log-path` 指定用来写入审计事件的日志文件路径。不指定此标志会禁用日志后端。`-` 意味着标准化
 - `--audit-log-maxage` 定义保留旧审计日志文件的最大天数
 - `--audit-log-maxbackup` 定义要保留的审计日志文件的最大数量
-- `--audit-log-maxsize` 定义审计日志文件的最大大小（兆字节）
+- `--audit-log-maxsize` 定义审计日志文件轮转之前的最大大小（兆字节）
 
 <!--
 If your cluster's control plane runs the kube-apiserver as a Pod, remember to mount the `hostPath`
@@ -265,14 +258,18 @@ to the location of the policy file and log file, so that audit records are persi
 如果你的集群控制面以 Pod 的形式运行 kube-apiserver，记得要通过 `hostPath`
 卷来访问策略文件和日志文件所在的目录，这样审计记录才会持久保存下来。例如：
 
-```shell
-  --audit-policy-file=/etc/kubernetes/audit-policy.yaml
-  --audit-log-path=/var/log/kubernetes/audit/audit.log
+```yaml
+  - --audit-policy-file=/etc/kubernetes/audit-policy.yaml
+  - --audit-log-path=/var/log/kubernetes/audit/audit.log
 ```
 
+<!--
+then mount the volumes:
+-->
 接下来挂载数据卷：
 
 ```yaml
+...
 volumeMounts:
   - mountPath: /etc/kubernetes/audit-policy.yaml
     name: audit
@@ -346,7 +343,7 @@ throttling is enabled in `webhook` and disabled in `log`.
 同样，默认情况下，在 `webhook` 中启用带宽限制，在 `log` 中禁用带宽限制。
 
 <!--
-  - `--audit-webhook-mode` defines the buffering strategy. One of the following:
+- `--audit-webhook-mode` defines the buffering strategy. One of the following:
   - `batch` - buffer events and asynchronously process them in batches. This is the default.
   - `blocking` - block API server responses on processing each individual event.
   - `blocking-strict` - Same as blocking, but when there is a failure during audit logging at the
@@ -355,11 +352,11 @@ throttling is enabled in `webhook` and disabled in `log`.
 - `--audit-webhook-mode` 定义缓存策略，可选值如下：
   - `batch` - 以批处理缓存事件和异步的过程。这是默认值。
   - `blocking` - 在 API 服务器处理每个单独事件时，阻塞其响应。
-  - `blocking-strict` - 与 `blocking` 相同，不过当审计日志在 RequestReceived 阶段
-    失败时，整个 API 服务请求会失效。
+  - `blocking-strict` - 与 `blocking` 相同，不过当审计日志在 RequestReceived
+    阶段失败时，整个 API 服务请求会失效。
 
 <!--
-The following flags are used only in the `batch` mode.
+The following flags are used only in the `batch` mode:
 
 - `--audit-webhook-batch-buffer-size` defines the number of events to buffer before batching.
   If the rate of incoming events overflows the buffer, events are dropped.
@@ -371,7 +368,7 @@ The following flags are used only in the `batch` mode.
 - `--audit-webhook-batch-throttle-burst` defines the maximum number of batches generated at the same
   moment if the allowed QPS was underutilized previously.
 -->
-以下参数仅用于 `batch` 模式。
+以下参数仅用于 `batch` 模式：
 
 - `--audit-webhook-batch-buffer-size` 定义 batch 之前要缓存的事件数。
   如果传入事件的速率溢出缓存区，则会丢弃事件。
@@ -425,7 +422,7 @@ As an example, the following is the list of flags available for the log backend:
 -->
 ### 日志条目截断   {#truncate}
 
-日志后端和 Webhook 后端都支持限制所输出的事件的尺寸。
+日志后端和 Webhook 后端都支持限制所输出的事件大小。
 例如，下面是可以为日志后端配置的标志列表：
 
 <!--
@@ -434,8 +431,8 @@ As an example, the following is the list of flags available for the log backend:
 - `audit-log-truncate-max-event-size` maximum size in bytes of the audit event sent to the underlying backend.
 -->
 - `audit-log-truncate-enabled`：是否弃用事件和批次的截断处理。
-- `audit-log-truncate-max-batch-size`：向下层后端发送的各批次的最大尺寸字节数。
-- `audit-log-truncate-max-event-size`：向下层后端发送的审计事件的最大尺寸字节数。
+- `audit-log-truncate-max-batch-size`：向下层后端发送的各批次的最大字节数。
+- `audit-log-truncate-max-event-size`：向下层后端发送的审计事件的最大字节数。
 
 <!--
 By default truncate is disabled in both `webhook` and `log`, a cluster administrator should set
@@ -448,5 +445,12 @@ By default truncate is disabled in both `webhook` and `log`, a cluster administr
 
 <!--
 * Learn about [Mutating webhook auditing annotations](/docs/reference/access-authn-authz/extensible-admission-controllers/#mutating-webhook-auditing-annotations).
+* Learn more about [`Event`](/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Event)
+  and the [`Policy`](/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Policy)
+  resource types by reading the Audit configuration reference.
 -->
-* 了解 [Mutating webhook 审计注解](/zh-cn/docs/reference/access-authn-authz/extensible-admission-controllers/#mutating-webhook-auditing-annotations)。
+* 进一步了解 [Mutating webhook 审计注解](/zh-cn/docs/reference/access-authn-authz/extensible-admission-controllers/#mutating-webhook-auditing-annotations)。
+* 通过阅读审计配置参考，进一步了解
+  [`Event`](/zh-cn/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Event)
+  和 [`Policy`](/zh-cn/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Policy) 资源的信息。
+

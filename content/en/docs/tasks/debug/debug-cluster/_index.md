@@ -14,6 +14,9 @@ problem you are experiencing. See
 the [application troubleshooting guide](/docs/tasks/debug/debug-application/) for tips on application debugging.
 You may also visit the [troubleshooting overview document](/docs/tasks/debug/) for more information.
 
+For troubleshooting {{<glossary_tooltip text="kubectl" term_id="kubectl">}}, refer to
+[Troubleshooting kubectl](/docs/tasks/debug/debug-cluster/troubleshoot-kubectl/).
+
 <!-- body -->
 
 ## Listing your cluster
@@ -323,6 +326,7 @@ This is an incomplete list of things that could go wrong, and how to adjust your
   [monitoring resource usage](/docs/tasks/debug/debug-cluster/resource-usage-monitoring/)
 * Use Node Problem Detector to
   [monitor node health](/docs/tasks/debug/debug-cluster/monitor-node-health/)
+* Use `kubectl debug node` to [debug Kubernetes nodes](/docs/tasks/debug/debug-cluster/kubectl-node-debug) 
 * Use `crictl` to [debug Kubernetes nodes](/docs/tasks/debug/debug-cluster/crictl/)
 * Get more information about [Kubernetes auditing](/docs/tasks/debug/debug-cluster/audit/)
 * Use `telepresence` to [develop and debug services locally](/docs/tasks/debug/debug-cluster/local-debugging/)

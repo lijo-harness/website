@@ -55,7 +55,7 @@ are influenced by the following issues:
 Before building a Kubernetes production environment on your own, consider
 handing off some or all of this job to 
 [Turnkey Cloud Solutions](/docs/setup/production-environment/turnkey-solutions/) 
-providers or other [Kubernetes Partners](https://kubernetes.io/partners/).
+providers or other [Kubernetes Partners](/partners/).
 Options include:
 
 - *Serverless*: Just run workloads on third-party equipment without managing
@@ -117,7 +117,7 @@ consider these steps:
   extra security and availability. Because etcd stores cluster configuration data,
   backing up the etcd database should be done regularly to ensure that you can
   repair that database if needed.
-  See the [etcd FAQ](https://etcd.io/docs/v3.4/faq/) for details on configuring and using etcd.
+  See the [etcd FAQ](https://etcd.io/docs/v3.5/faq/) for details on configuring and using etcd.
   See [Operating etcd clusters for Kubernetes](/docs/tasks/administer-cluster/configure-upgrade-etcd/)
   and [Set up a High Availability etcd cluster with kubeadm](/docs/setup/production-environment/tools/kubeadm/setup-ha-etcd-with-kubeadm/)
   for details.
@@ -288,7 +288,7 @@ needs of your cluster's workloads:
 
 - Decide if you want to build your own production Kubernetes or obtain one from
   available [Turnkey Cloud Solutions](/docs/setup/production-environment/turnkey-solutions/)
-  or [Kubernetes Partners](https://kubernetes.io/partners/).
+  or [Kubernetes Partners](/partners/).
 - If you choose to build your own cluster, plan how you want to
   handle [certificates](/docs/setup/best-practices/certificates/)
   and set up high availability for features such as

@@ -1,19 +1,17 @@
 <!--
 Upgrade your Kubernetes cluster to the specified version
 -->
-将 Kubernetes 集群升级到指定版本
+将 Kubernetes 集群升级到指定版本。
 
 <!--
 ### Synopsis
 -->
-
 ### 概要
 
 <!--
 Upgrade your Kubernetes cluster to the specified version
 -->
-
-将 Kubernetes 集群升级到指定版本
+将 Kubernetes 集群升级到指定版本。
 
 ```
 kubeadm upgrade apply [version]
@@ -22,7 +20,6 @@ kubeadm upgrade apply [version]
 <!--
 ### Options
 -->
-
 ### 选项
 
    <table style="width: 100%; table-layout: fixed;">
@@ -41,7 +38,7 @@ kubeadm upgrade apply [version]
 Show unstable versions of Kubernetes as an upgrade alternative and allow upgrading to an alpha/beta/release candidate versions of Kubernetes.
 -->
 <p>
-显示 Kubernetes 的不稳定版本作为升级替代方案，并允许升级到 Kubernetes 的 alpha/beta 或 RC 版本。
+显示 Kubernetes 的不稳定版本作为升级替代方案，并允许升级到 Kubernetes 的 Alpha、Beta 或 RC 版本。
 </p>
 </td>
 </tr>
@@ -127,13 +124,18 @@ Perform the upgrade of etcd.
 <tr>
 <td></td><td style="line-height: 130%; word-wrap: break-word;">
 <!--
-A set of key=value pairs that describe feature gates for various features. Options are:<br/>PublicKeysECDSA=true|false (ALPHA - default=false)<br/>RootlessControlPlane=true|false (ALPHA - default=false)<br/>UnversionedKubeletConfigMap=true|false (BETA - default=true)
+A set of key=value pairs that describe feature gates for various features. Options are:<br/>
+EtcdLearnerMode=true|false (ALPHA - default=false)<br/>
+PublicKeysECDSA=true|false (ALPHA - default=false)<br/>
+RootlessControlPlane=true|false (ALPHA - default=false)<br/>
+UpgradeAddonsBeforeControlPlane=true|false (DEPRECATED - default=false)
 -->
 <p>
-一组键值对，用于描述各种功能。选项包括：
-<br/>PublicKeysECDSA=true|false (ALPHA - 默认值=false
-<br/>RootlessControlPlane=true|false (ALPHA - 默认值=false)
-<br/>UnversionedKubeletConfigMap=true|false (BETA - 默认值=true)
+一组键值对，用于描述各种功能。选项包括：<br/>
+EtcdLearnerMode=true|false (ALPHA - 默认值=false)<br/>
+PublicKeysECDSA=true|false (ALPHA - 默认值=false)<br/>
+RootlessControlPlane=true|false (ALPHA - 默认值=false)<br/>
+UpgradeAddonsBeforeControlPlane=true|false (DEPRECATED - 默认值=false)
 </p>
 </td>
 </tr>
@@ -161,7 +163,7 @@ Force upgrading although some requirements might not be met. This also implies n
 help for apply
 -->
 <p>
-apply 操作的帮助命令
+apply 操作的帮助命令。
 </p>
 </td>
 </tr>
@@ -205,16 +207,16 @@ The kubeconfig file to use when talking to the cluster. If the flag is not set, 
 <tr>
 <td></td><td style="line-height: 130%; word-wrap: break-word;">
 <!--
-Path to a directory that contains files named &quot;target[suffix][+patchtype].extension&quot;. For example, &quot;kube-apiserver0+merge.yaml&quot; or just &quot;etcd.json&quot;. &quot;target&quot; can be one of &quot;kube-apiserver&quot;, &quot;kube-controller-manager&quot;, &quot;kube-scheduler&quot;, &quot;etcd&quot;. &quot;patchtype&quot; can be one of &quot;strategic&quot;, &quot;merge&quot; or &quot;json&quot; and they match the patch formats supported by kubectl. The default &quot;patchtype&quot; is &quot;strategic&quot;. &quot;extension&quot; must be either &quot;json&quot; or &quot;yaml&quot;. &quot;suffix&quot; is an optional string that can be used to determine which patches are applied first alpha-numerically.
+Path to a directory that contains files named &quot;target[suffix][+patchtype].extension&quot;. For example, &quot;kube-apiserver0+merge.yaml&quot; or just &quot;etcd.json&quot;. &quot;target&quot; can be one of &quot;kube-apiserver&quot;, &quot;kube-controller-manager&quot;, &quot;kube-scheduler&quot;, &quot;etcd&quot;, &quot;kubeletconfiguration&quot;. &quot;patchtype&quot; can be one of &quot;strategic&quot;, &quot;merge&quot; or &quot;json&quot; and they match the patch formats supported by kubectl. The default &quot;patchtype&quot; is &quot;strategic&quot;. &quot;extension&quot; must be either &quot;json&quot; or &quot;yaml&quot;. &quot;suffix&quot; is an optional string that can be used to determine which patches are applied first alpha-numerically.
 -->
 <p>
 包含名为 &quot;target[suffix][+patchtype].extension&quot; 的文件的目录的路径。
-例如，&quot;kube-apiserver0+merge.yaml&quot;或仅仅是 &quot;etcd.json&quot;。
-&quot;target&quot; 可以是 &quot;kube-apiserver&quot;、&quot;kube-controller-manager&quot;、&quot;kube-scheduler&quot;、&quot;etcd&quot; 之一。
+例如，&quot;kube-apiserver0+merge.yaml&quot;或是简单的 &quot;etcd.json&quot;。
+&quot;target&quot; 可以是 &quot;kube-apiserver&quot;、&quot;kube-controller-manager&quot;、&quot;kube-scheduler&quot;、&quot;etcd&quot;、&quot;kubeletconfiguration&quot; 之一。
 &quot;patchtype&quot; 可以是 &quot;strategic&quot;、&quot;merge&quot; 或者 &quot;json&quot; 之一，
 并且它们与 kubectl 支持的补丁格式相同。
 默认的 &quot;patchtype&quot; 是 &quot;strategic&quot;。
-&quot;extension&quot; 必须是&quot;json&quot; 或&quot;yaml&quot;。
+&quot;extension&quot; 必须是 &quot;json&quot; 或 &quot;yaml&quot;。
 &quot;suffix&quot; 是一个可选字符串，可用于确定首先按字母顺序应用哪些补丁。
 </p>
 </td>
@@ -254,7 +256,6 @@ Perform the upgrade and do not prompt for confirmation (non-interactive mode).
 <!--
 ### Options inherited from parent commands
 -->
-
 ### 从父命令继承的选项
 
    <table style="width: 100%; table-layout: fixed;">
@@ -280,4 +281,3 @@ Perform the upgrade and do not prompt for confirmation (non-interactive mode).
 
 </tbody>
 </table>
-

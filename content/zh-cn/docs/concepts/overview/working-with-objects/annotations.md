@@ -1,22 +1,24 @@
 ---
 title: 注解
 content_type: concept
-weight: 50
+weight: 60
 ---
 
 <!--
 title: Annotations
 content_type: concept
-weight: 50
+weight: 60
 -->
 
 <!-- overview -->
 
 <!--
 You can use Kubernetes annotations to attach arbitrary non-identifying metadata
-to objects. Clients such as tools and libraries can retrieve this metadata.
+to {{< glossary_tooltip text="objects" term_id="object" >}}.
+Clients such as tools and libraries can retrieve this metadata.
 -->
-你可以使用 Kubernetes 注解为对象附加任意的非标识的元数据。客户端程序（例如工具和库）能够获取这些元数据信息。
+你可以使用 Kubernetes 注解为{{< glossary_tooltip text="对象" term_id="object" >}}附加任意的非标识的元数据。
+客户端程序（例如工具和库）能够获取这些元数据信息。
 
 <!-- body -->
 <!--
@@ -27,7 +29,8 @@ objects. Labels can be used to select objects and to find
 collections of objects that satisfy certain conditions. In contrast, annotations
 are not used to identify and select objects. The metadata
 in an annotation can be small or large, structured or unstructured, and can
-include characters not permitted by labels.
+include characters not permitted by labels. It is possible to use labels as 
+well as annotations in the metadata of the same object.
 
 Annotations, like labels, are key/value maps:
 -->
@@ -36,6 +39,7 @@ Annotations, like labels, are key/value maps:
 你可以使用标签或注解将元数据附加到 Kubernetes 对象。
 标签可以用来选择对象和查找满足某些条件的对象集合。 相反，注解不用于标识和选择对象。
 注解中的元数据，可以很小，也可以很大，可以是结构化的，也可以是非结构化的，能够包含标签不允许的字符。
+可以在同一对象的元数据中同时使用标签和注解。
 
 注解和标签一样，是键/值对：
 
@@ -124,7 +128,7 @@ If the prefix is omitted, the annotation Key is presumed to be private to the us
 -->
 ## 语法和字符集
 
-_注解（Annotations）_ 存储的形式是键/值对。有效的注解键分为两部分：
+**注解（Annotations）** 存储的形式是键/值对。有效的注解键分为两部分：
 可选的前缀和名称，以斜杠（`/`）分隔。 
 名称段是必需项，并且必须在 63 个字符以内，以字母数字字符（`[a-z0-9A-Z]`）开头和结尾，
 并允许使用破折号（`-`），下划线（`_`），点（`.`）和字母数字。 
@@ -137,11 +141,11 @@ _注解（Annotations）_ 存储的形式是键/值对。有效的注解键分�
 <!--
 The `kubernetes.io/` and `k8s.io/` prefixes are reserved for Kubernetes core components.
 
-For example, here's the configuration file for a Pod that has the annotation `imageregistry: https://hub.docker.com/` :
+For example, here's a manifest for a Pod that has the annotation `imageregistry: https://hub.docker.com/` :
 -->
 `kubernetes.io/` 和 `k8s.io/` 前缀是为 Kubernetes 核心组件保留的。
 
-例如，下面是一个 Pod 的配置文件，其注解中包含 `imageregistry: https://hub.docker.com/`：
+例如，下面是一个 Pod 的清单，其注解中包含 `imageregistry: https://hub.docker.com/`：
 
 ```yaml
 apiVersion: v1
@@ -153,7 +157,7 @@ metadata:
 spec:
   containers:
   - name: nginx
-    image: nginx:1.7.9
+    image: nginx:1.14.2
     ports:
     - containerPort: 80
 ```
@@ -161,7 +165,8 @@ spec:
 ## {{% heading "whatsnext" %}}
 
 <!--
-* Learn more about [Labels and Selectors](/docs/concepts/overview/working-with-objects/labels/).
+- Learn more about [Labels and Selectors](/docs/concepts/overview/working-with-objects/labels/).
+- Find [Well-known labels, Annotations and Taints](/docs/reference/labels-annotations-taints/)
 -->
-* 进一步了解[标签和选择算符](/zh-cn/docs/concepts/overview/working-with-objects/labels/)。
-
+- 进一步了解[标签和选择算符](/zh-cn/docs/concepts/overview/working-with-objects/labels/)。
+- 查找[众所周知的标签、注解和污点](/zh-cn/docs/reference/labels-annotations-taints/)。
